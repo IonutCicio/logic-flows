@@ -1,13 +1,14 @@
 <script lang="ts">
     import * as joint from "@joint/core";
     import { darkenHSL, getBorderColor } from "$lib/utils/color";
+    import ClassInspector from "./ClassInspector.svelte";
+    import AssociationInspector from "./AssociationInspector.svelte";
+    import { JointJSClass } from "../JointJS/JointJSClass";
+    import { JointJSAssociation } from "../JointJS/JointJSAssociation";
 
     const { component }: { component: joint.dia.Element | joint.dia.Link } =
         $props();
     let componentIsElement = $derived(component instanceof joint.dia.Element);
-    let name: string = $derived(component.get("name") || "");
-    let attributes: string[] = $derived(component.get("attributesList") || []);
-    let operations: string[] = $derived(component.get("operationsList") || []);
 
     const strokeFills = [
         { color: "hsl(0,0%,100%)" },
@@ -19,9 +20,7 @@
         { color: "hsl(3,76%,89%)" },
     ];
 
-    const strokes: { color: string }[] = JSON.parse(
-        JSON.stringify(strokeFills),
-    );
+    const strokes = strokeFills;
 
     const fillStyles = [{ value: "default" }];
 
@@ -87,35 +86,6 @@
 
         if (componentIsElement) component.attr("body/strokeWidth", strokeWidth);
         else component.attr("line/strokeWidth", strokeWidth + 1);
-    };
-
-    const changeName = (
-        e: Event & { currentTarget: EventTarget & HTMLInputElement },
-    ) => {
-        e.preventDefault();
-        // for some reasons, jointjs needs type narrowing here
-        if (component instanceof joint.dia.Link) component.set("name", name);
-        else component.set("name", name);
-    };
-
-    const addAttribute = (
-        e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
-    ) => {
-        e.preventDefault();
-
-        if (component instanceof joint.dia.Link) return;
-        attributes = [...attributes, "-attr: Prova"];
-        component.set("attributesList", attributes);
-    };
-
-    const addOperation = (
-        e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
-    ) => {
-        e.preventDefault();
-        if (component instanceof joint.dia.Link) return;
-
-        operations = [...operations, "-op(args): void"];
-        component.set("operationsList", operations);
     };
 </script>
 
@@ -206,39 +176,12 @@
             {/each}
         </div>
     </div>
-    <div>
-        <h3 class="text-xl text-center">
-            {component instanceof joint.dia.Element ? "Class" : "Association"}
-        </h3>
-        <h4>Name</h4>
-        <input
-            type="text"
-            bind:value={name}
-            class="
-                w-full
-                rounded-md
 
-                bg-white
-                text-gray-900
-                p-1
-                border border-gray-300
-                
-                focus:outline-none
-                focus:border-transparent
-                focus:ring-2
-                focus:ring-blue-500
+    <hr class="m-4" />
 
-                transition
-            "
-            oninput={(e) => changeName(e)}
-        />
-        {#if componentIsElement}
-            <button class="cursor-pointer" onclick={(e) => addAttribute(e)}>
-                + add attribute
-            </button>
-            <button class="cursor-pointer" onclick={(e) => addOperation(e)}>
-                + add operation
-            </button>
-        {/if}
-    </div>
+    {#if component instanceof JointJSClass}
+        <ClassInspector {component} />
+    {:else if component instanceof JointJSAssociation}
+        <AssociationInspector {component} />
+    {/if}
 </div>

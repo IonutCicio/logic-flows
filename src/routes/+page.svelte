@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Diagram from "$lib/components/Diagram.svelte";
+    import Editor from "$lib/components/Editor.svelte";
 </script>
 
-<Diagram />
+<Editor />

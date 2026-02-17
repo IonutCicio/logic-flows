@@ -1,11 +1,11 @@
 import { isStringArray } from '$lib/types/typeSafety';
-import type { IUMLClass } from '$lib/types/UML';
+import type { IUMLClass } from '$lib/types/uml';
 import * as joint from '@joint/core';
 
 
-export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
+export const JointJSClass = joint.dia.Element.define('custom.UMLClass', {
     size: { width: 200, height: 50 },
-    name: 'ClassName',
+    name: 'Class',
     attributesList: [],
     operationsList: [],
     attrs: {
@@ -15,8 +15,6 @@ export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
             stroke: '#000000',
             strokeWidth: 1,
             fill: '#FFFFFF',
-            rx: 5,
-            ry: 5
         },
         headerDivider: {
             stroke: '#000000',
@@ -33,7 +31,7 @@ export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
             visibility: 'hidden' // initially hidden, visible after there are operations
         },
         nameText: {
-            text: 'ClassName',
+            text: 'Class',
             fontWeight: 'bold',
             fontSize: 14,
             fill: '#000000',
@@ -89,21 +87,23 @@ export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
         }
     ],
 
-    initialize: function (this: IUMLClass) {
+    initialize: function(this: IUMLClass) {
         joint.dia.Element.prototype.initialize.apply(this, arguments as any);
         this.on('change:size change:attrs change:name change:attributesList change:operationsList', this.updateLayout);
         this.updateLayout();
     },
 
-    updateLayout: function (this: IUMLClass) {
-        const headerHeight = 30;
+    updateLayout: function(this: IUMLClass) {
+        const GRID_SIZE = 16;
+
+        const headerHeight = GRID_SIZE * 2;
         const fontSize = 12;
-        const lineHeight = 16;
-        const padding = 8;
-        const leftPadding = 5;
+        const lineHeight = GRID_SIZE;
+        const padding = GRID_SIZE / 2;
+        const leftPadding = GRID_SIZE / 4;
 
         const width = this.size().width;
-        const name = this.get('name') || 'ClassName';
+        const name = this.get('name') || 'ClassName'; // TODO: default name
         const attributes = isStringArray(this.get('attributesList')) ? this.get('attributesList') : [];
         const operations = isStringArray(this.get('operationsList')) ? this.get('operationsList') : [];
 
@@ -113,8 +113,8 @@ export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
             { tagName: 'line', selector: 'attributesDivider' },
             { tagName: 'text', selector: 'nameText' }
         ];
-        attributes.forEach((_, i) => markup.push({ tagName: 'text', selector: `attribute-${i}` }));
-        operations.forEach((_, i) => markup.push({ tagName: 'text', selector: `operation-${i}` }));
+        attributes.forEach((_, index) => markup.push({ tagName: 'text', selector: `attribute-${index}` }));
+        operations.forEach((_, index) => markup.push({ tagName: 'text', selector: `operation-${index}` }));
         this.set('markup', markup);
 
         const attrs: Record<string, any> = {};
@@ -139,10 +139,9 @@ export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
 
         let cursorY = headerHeight + padding;
 
-        for (let i = 0; i < attributes.length; i++) {
-
-            attrs[`attribute-${i}`] = {
-                text: attributes[i],
+        for (let attribute = 0; attribute < attributes.length; attribute++) {
+            attrs[`attribute-${attribute}`] = {
+                text: attributes[attribute],
                 x: leftPadding,
                 y: cursorY,
                 textAnchor: 'start',
@@ -155,6 +154,7 @@ export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
                     ellipsis: true
                 }
             };
+
 
             cursorY += lineHeight;
         }
@@ -169,10 +169,10 @@ export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
 
         cursorY = attrDividerY + padding;
 
-        for (let i = 0; i < operations.length; i++) {
-            const txt = String(operations[i] ?? '');
+        for (let operation = 0; operation < operations.length; operation++) {
+            const txt = String(operations[operation] ?? '');
 
-            attrs[`operation-${i}`] = {
+            attrs[`operation-${operation}`] = {
                 text: txt,
                 x: leftPadding,
                 y: cursorY,
@@ -194,5 +194,4 @@ export const UMLClass = joint.dia.Element.define('custom.UMLClass', {
         this.attr(attrs);
         this.resize(width, totalHeight);
     }
-
 });

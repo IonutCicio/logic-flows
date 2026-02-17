@@ -1,17 +1,17 @@
-import type { IUMLLink } from "$lib/types/UML";
+import type { IUMLLink } from "$lib/types/uml";
 import * as joint from "@joint/core";
 
-export const UMLLink = joint.dia.Link.define('custom.UMLLink', {
+export const JointJSAssociation = joint.dia.Link.define('custom.UMLAssociation', {
     ...joint.dia.Link.prototype.defaults,
-    sourceMultiplicity: '1',
+    sourceMultiplicity: '0..*',
     name: 'Association',
     targetMultiplicity: '0..*',
     attrs: {
         line: {
             connection: true,
             stroke: 'hsl(0, 0%, 0%)',
-            strokeWidth: 2,   
-            fill: 'none'      
+            strokeWidth: 2,
+            fill: 'none'
         },
         wrapper: {
             connection: true,
@@ -21,7 +21,7 @@ export const UMLLink = joint.dia.Link.define('custom.UMLLink', {
     labels: [
         // 0: Source Multiplicity
         {
-            position: 25,
+            position: 16,
             attrs: {
                 text: { text: '', 'font-size': 12 },
                 rect: { fill: 'white' }
@@ -37,7 +37,7 @@ export const UMLLink = joint.dia.Link.define('custom.UMLLink', {
         },
         // 2: Target Multiplicity
         {
-            position: -25,
+            position: -16,
             attrs: {
                 text: { text: '', 'font-size': 12 },
                 rect: { fill: 'white' }
@@ -65,19 +65,15 @@ export const UMLLink = joint.dia.Link.define('custom.UMLLink', {
         }
     ],
 
-    initialize: function (this: IUMLLink) {
+    initialize: function(this: IUMLLink) {
         joint.dia.Link.prototype.initialize.apply(this, arguments as any);
         this.on('change:sourceMultiplicity change:name change:targetMultiplicity', this.updateLabels);
         this.updateLabels();
     },
 
-    updateLabels: function (this: IUMLLink) {
-        const sourceMultiplicity = this.get('sourceMultiplicity') || '';
-        const name = this.get('name') || '';
-        const targetMultiplicity = this.get('targetMultiplicity') || '';
-
-        this.label(0, { attrs: { text: { text: sourceMultiplicity } } });
-        this.label(1, { attrs: { text: { text: name } } });
-        this.label(2, { attrs: { text: { text: targetMultiplicity } } });
+    updateLabels: function(this: IUMLLink) {
+        this.label(0, { attrs: { text: { text: this.get('sourceMultiplicity') || '' } } });
+        this.label(1, { attrs: { text: { text: this.get('name') || '' } } });
+        this.label(2, { attrs: { text: { text: this.get('targetMultiplicity') || '' } } });
     }
 });
