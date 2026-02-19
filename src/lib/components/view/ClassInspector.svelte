@@ -5,7 +5,7 @@
 
     let name: string = $derived(component.get("name") || "");
     let attributes: string[] = $state(component.get("attributesList") || []);
-    let operations: string[] = $derived(component.get("operationsList") || []);
+    let operations: string[] = $state(component.get("operationsList") || []);
 </script>
 
 <div class="align-middle flex flex-col">
@@ -24,9 +24,8 @@
         <input
             type="text"
             bind:value={attributes[index]}
-            oninput={(_) => {
-                attributes = [...attributes];
-                component.set("attributesList", attributes);
+            oninput={() => {
+                component.set("attributesList", [...attributes]);
             }}
         />
     {/each}
@@ -34,8 +33,7 @@
     <button
         class="cursor-pointer"
         onclick={() => {
-            attributes = [...attributes, "attr: Prova"];
-            component.set("attributesList", attributes);
+            component.set("attributesList", [...attributes, "attr: Prova"]);
         }}
     >
         + add attribute
@@ -44,10 +42,9 @@
     {#each operations as _, index}
         <input
             type="text"
-            value={operations[index]}
+            bind:value={operations[index]}
             oninput={() => {
-                operations = [...operations];
-                component.set("operationsList", operations);
+                component.set("operationsList", [...operations]);
             }}
         />
         <br />
@@ -56,8 +53,7 @@
     <button
         class="cursor-pointer"
         onclick={() => {
-            operations = [...operations, "op(args): void"];
-            component.set("operationsList", operations);
+            component.set("operationsList", [...operations, "op(args): void"]);
         }}
     >
         + add operation

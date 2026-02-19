@@ -2,7 +2,6 @@ import { isStringArray } from '$lib/types/typeSafety';
 import type { IUMLClass } from '$lib/types/uml';
 import * as joint from '@joint/core';
 
-
 export const JointJSClass = joint.dia.Element.define('custom.UMLClass', {
     size: { width: 200, height: 50 },
     name: 'Class',
@@ -12,7 +11,7 @@ export const JointJSClass = joint.dia.Element.define('custom.UMLClass', {
         body: {
             refWidth: '100%',
             refHeight: '100%',
-            stroke: '#000000',
+            stroke: 'hsl(0, 0%, 30%)',
             strokeWidth: 1,
             fill: '#FFFFFF',
         },
@@ -107,21 +106,17 @@ export const JointJSClass = joint.dia.Element.define('custom.UMLClass', {
         const attributes = isStringArray(this.get('attributesList')) ? this.get('attributesList') : [];
         const operations = isStringArray(this.get('operationsList')) ? this.get('operationsList') : [];
 
-        const markup = [
-            { tagName: 'rect', selector: 'body' },
-            { tagName: 'line', selector: 'headerDivider' },
-            { tagName: 'line', selector: 'attributesDivider' },
-            { tagName: 'text', selector: 'nameText' }
-        ];
-        attributes.forEach((_, index) => markup.push({ tagName: 'text', selector: `attribute-${index}` }));
-        operations.forEach((_, index) => markup.push({ tagName: 'text', selector: `operation-${index}` }));
-        this.set('markup', markup);
-
         const attrs: Record<string, any> = {};
+
+        attrs['body'] = {
+            stroke: 'hsl(0, 0%, 30%)',
+            strokeWidth: 1,
+            fill: '#FFFFFF',
+        };
 
         attrs['nameText'] = {
             text: name,
-            x: 0,
+            refX: '50%',
             y: headerHeight / 2,
             textAnchor: 'middle',
             textVerticalAnchor: 'middle',
@@ -132,66 +127,66 @@ export const JointJSClass = joint.dia.Element.define('custom.UMLClass', {
 
         attrs['headerDivider'] = {
             x1: 0, x2: width, y1: headerHeight, y2: headerHeight,
-            stroke: this.attr('body/stroke') || '#000',
+            stroke: '#000000',
             strokeWidth: 1,
+            visibility: (attributes.length > 0 || operations.length > 0) ? 'visible' : 'hidden'
+        };
+
+        let attributesY = headerHeight + padding;
+        let attributesHeight = attributes.length * lineHeight;
+        let afterAttributesY = attributesY + attributesHeight;
+
+        attrs['attributesText'] = {
+            text: attributes.length > 0 ? attributes.join('\n') : '',
+            refX: null,
+            x: leftPadding,
+            y: attributesY,
+            textAnchor: 'start',
+            textVerticalAnchor: 'top',
+            fontSize,
+            fill: '#000',
+            lineHeight: lineHeight,
             visibility: attributes.length > 0 ? 'visible' : 'hidden'
         };
 
-        let cursorY = headerHeight + padding;
+        let attributesDividerY: number;
+        let operationsY: number;
 
-        for (let attribute = 0; attribute < attributes.length; attribute++) {
-            attrs[`attribute-${attribute}`] = {
-                text: attributes[attribute],
-                x: leftPadding,
-                y: cursorY,
-                textAnchor: 'start',
-                textVerticalAnchor: 'top',
-                fontSize,
-                fill: '#000',
-                textWrap: {
-                    width: `calc(w - ${leftPadding})`,
-                    height: lineHeight,
-                    ellipsis: true
-                }
-            };
-
-
-            cursorY += lineHeight;
+        if (attributes.length > 0) {
+            attributesDividerY = afterAttributesY + padding;
+            operationsY = attributesDividerY + padding;
+        } else {
+            attributesDividerY = headerHeight; // not used if hidden
+            operationsY = headerHeight + padding;
         }
 
-        const attrDividerY = cursorY + (attributes.length > 0 ? padding : 0);
         attrs['attributesDivider'] = {
-            x1: 0, x2: width, y1: attrDividerY, y2: attrDividerY,
-            stroke: this.attr('body/stroke') || '#000',
+            x1: 0, x2: width, y1: attributesDividerY, y2: attributesDividerY,
+            stroke: '#000000',
             strokeWidth: 1,
+            visibility: (attributes.length > 0 && operations.length > 0) ? 'visible' : 'hidden'
+        };
+
+        let operationsHeight = operations.length * lineHeight;
+        let afterOperationsY = operationsY + operationsHeight;
+
+        attrs['operationsText'] = {
+            text: operations.length > 0 ? operations.join('\n') : '',
+            refX: null,
+            x: leftPadding,
+            y: operationsY,
+            textAnchor: 'start',
+            textVerticalAnchor: 'top',
+            fontSize,
+            fill: '#000',
+            lineHeight: lineHeight,
             visibility: operations.length > 0 ? 'visible' : 'hidden'
         };
 
-        cursorY = attrDividerY + padding;
+        let cursorY = (operations.length > 0 ? afterOperationsY : (attributes.length > 0 ? afterAttributesY : headerHeight)) + padding;
 
-        for (let operation = 0; operation < operations.length; operation++) {
-            const txt = String(operations[operation] ?? '');
-
-            attrs[`operation-${operation}`] = {
-                text: txt,
-                x: leftPadding,
-                y: cursorY,
-                textAnchor: 'start',
-                textVerticalAnchor: 'top',
-                fontSize,
-                fill: '#000',
-                textWrap: {
-                    width: `calc(w - ${leftPadding})`,
-                    height: lineHeight,
-                    ellipsis: true
-                }
-            };
-
-            cursorY += lineHeight;
-        }
-
-        const totalHeight = Math.max(Math.max(50, cursorY + padding), this.size().height);
-        this.attr(attrs);
+        const totalHeight = Math.max(50, cursorY);
         this.resize(width, totalHeight);
+        this.attr(attrs);
     }
 });

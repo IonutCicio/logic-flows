@@ -11,7 +11,7 @@ export function darkenHSL(hslString: string, amount = 20): string {
   l = Math.max(0, l - amount);
 
   if(h == 0) { 
-    return 'hsl(0, 70%, 40%)';
+    return 'hsl(0, 0%, 30%)';
   }
 
   return `hsl(${h}, ${s}%, ${l}%)`;
