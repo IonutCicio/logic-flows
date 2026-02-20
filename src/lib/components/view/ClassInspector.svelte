@@ -4,8 +4,8 @@
     const { component }: { component: joint.dia.Element } = $props();
 
     let name: string = $derived(component.get("name") || "");
-    let attributes: string[] = $state(component.get("attributesList") || []);
-    let operations: string[] = $state(component.get("operationsList") || []);
+    let attributes: string[] = $state(component.get("attributes") || []);
+    let operations: string[] = $state(component.get("operations") || []);
 </script>
 
 <div class="align-middle flex flex-col">
@@ -25,7 +25,8 @@
             type="text"
             bind:value={attributes[index]}
             oninput={() => {
-                component.set("attributesList", [...attributes]);
+                attributes = [...attributes];
+                component.set("attributes", [...attributes]);
             }}
         />
     {/each}
@@ -33,7 +34,8 @@
     <button
         class="cursor-pointer"
         onclick={() => {
-            component.set("attributesList", [...attributes, "attr: Prova"]);
+            attributes = [...attributes, "attr: Prova"];
+            component.set("attributes", [...attributes]);
         }}
     >
         + add attribute
@@ -44,7 +46,8 @@
             type="text"
             bind:value={operations[index]}
             oninput={() => {
-                component.set("operationsList", [...operations]);
+                operations = [...operations];
+                component.set("operations", [...operations]);
             }}
         />
         <br />
@@ -53,7 +56,8 @@
     <button
         class="cursor-pointer"
         onclick={() => {
-            component.set("operationsList", [...operations, "op(args): void"]);
+            operations = [...operations, "operation(arg: Type): Type"];
+            component.set("operations", [...operations]);
         }}
     >
         + add operation

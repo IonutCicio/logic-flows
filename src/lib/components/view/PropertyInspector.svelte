@@ -1,6 +1,6 @@
 <script lang="ts">
     import * as joint from "@joint/core";
-    import { darkenHSL, getBorderColor } from "$lib/utils/color";
+    import { darkenHSL, getBorderColor } from "$lib/utils";
     import ClassInspector from "./ClassInspector.svelte";
     import AssociationInspector from "./AssociationInspector.svelte";
     import { JointJSClass } from "../JointJS/JointJSClass";

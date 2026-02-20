@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-* {
-    /* font-family: 'Caskaydia Cove NF' !important; */
+*:not(tspan) {
     font-family: 'Cascadia Code';
     font-weight: 300;
 }

@@ -1,10 +1,9 @@
 <script lang="ts">
     // TODO: reset view button or something
     // TODO: create a global "config" with GRID_SIZE and stuff like that
-    const GRID_SIZE = 16;
 
     import * as joint from "@joint/core";
-    import { darkenHSL } from "$lib/utils/color";
+    import { darkenHSL, GRID_SIZE } from "$lib/utils";
     import { ResizeTool } from "./JointJS/Resize";
     import { JointJSClass } from "./JointJS/JointJSClass";
     import { JointJSAssociation } from "./JointJS/JointJSAssociation";
@@ -89,6 +88,12 @@
             drawGrid: true,
         });
 
+        // graph.on("add remove change:source change:target", (cell) =>
+        //     adjustVertices(graph, cell),
+        // );
+
+        // paper.on("cell:pointerup", (cell) => adjustVertices(graph, cell));
+
         paper.on(
             "blank:mousewheel",
             (event: joint.dia.Event, x: number, y: number, delta: number) => {
@@ -117,14 +122,6 @@
             if (editMode == EditMode.AddClass) {
                 const obj = new JointJSClass();
                 obj.position(x, y);
-                obj.resize(GRID_SIZE * 6, GRID_SIZE * 2);
-                obj.attr({
-                    body: {
-                        fill: "#FFFFFF",
-                        stroke: "#000000",
-                        strokeWidth: 1,
-                    },
-                });
                 obj.addTo(graph);
             }
         });
@@ -216,20 +213,20 @@
 
         // create elements
         const class1 = new JointJSClass();
-        class1.position(GRID_SIZE * 4, GRID_SIZE * 8);
+        class1.position(GRID_SIZE * 5, GRID_SIZE * 8);
         class1.set("name", "Hello");
-        class1.set("attributesList", [
+        class1.set("attributes", [
             "attr1: Data",
             "attr2: DataOra",
-            "attr3: DataOra",
+            "attr3: Magik",
         ]);
-        class1.set("operationsList", ["-op1(args): void"]);
+        class1.set("operations", ["op1(arg: Type): void"]);
         class1.addTo(graph);
 
         const class2 = new JointJSClass();
-        class2.position(GRID_SIZE * 4, GRID_SIZE * 24);
+        class2.position(GRID_SIZE * 4, GRID_SIZE * 30);
         class2.set("name", "World");
-        class2.set("attributesList", [
+        class2.set("attributes", [
             "attr1: Periodo",
             "attr2: FasciaOraria",
             "attr3: GiornoSettimana",
@@ -242,18 +239,27 @@
         // class1.attr("label", { fill: "hsl(0, 0%, 21%)" });
         // class2.attr("label", { fill: "hsl(0, 0%, 21%)" });
 
-        const assoc = new JointJSAssociation();
-        assoc.source(class1);
-        assoc.target(class2);
-
-        assoc.set({
+        const assoc1 = new JointJSAssociation();
+        assoc1.source(class1);
+        assoc1.target(class2);
+        assoc1.set({
             sourceMultiplicity: "1..1",
             name: "to the",
             targetMultiplicity: "0..*",
         });
+        assoc1.router("manhattan");
+        assoc1.addTo(graph);
 
-        assoc.router("manhattan");
-        assoc.addTo(graph);
+        // const assoc2 = new JointJSAssociation();
+        // assoc2.source(class1);
+        // assoc2.target(class2);
+        // assoc2.set({
+        //     sourceMultiplicity: "2..1",
+        //     name: "male",
+        //     targetMultiplicity: "0..*",
+        // });
+        // assoc2.router("manhattan");
+        // assoc2.addTo(graph);
 
         return () => {
             if (paper) {
@@ -288,6 +294,16 @@
         const translate = paper.translate();
         paper.translate(translate.tx + dx, translate.ty + dy);
     });
+
+    function adjustVertices(
+        graph: joint.dia.Graph<
+            joint.dia.Graph.Attributes,
+            joint.dia.ModelSetOptions
+        > | null,
+        cell: any,
+    ) {
+        throw new Error("Function not implemented.");
+    }
 </script>
 
 <div>

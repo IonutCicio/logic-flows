@@ -3,15 +3,15 @@ import * as joint from "@joint/core";
 // Note: this is only for autocomplete, jointjs handles them internally
 
 export interface IUMLClass extends joint.dia.Element {
-    updateLayout: () => void;
+    update: () => void;
 
     get(key: 'name'): string;
-    get(key: 'attributesList'): string[];
-    get(key: 'operationsList'): string[];
+    get(key: 'attributes'): string[];
+    get(key: 'operations'): string[];
 }
 
 export interface IUMLLink extends joint.dia.Link {
-    updateLabels: () => void;
+    update: () => void;
 
     get(key: 'sourceMultiplicity'): string;
     get(key: 'name'): string;
