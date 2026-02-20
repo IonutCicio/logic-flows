@@ -1,6 +1,5 @@
 <script lang="ts">
     // TODO: reset view button or something
-    // TODO: create a global "config" with GRID_SIZE and stuff like that
 
     import * as joint from "@joint/core";
     import { darkenHSL, GRID_SIZE } from "$lib/utils";
@@ -87,12 +86,6 @@
             gridSize: GRID_SIZE,
             drawGrid: true,
         });
-
-        // graph.on("add remove change:source change:target", (cell) =>
-        //     adjustVertices(graph, cell),
-        // );
-
-        // paper.on("cell:pointerup", (cell) => adjustVertices(graph, cell));
 
         paper.on(
             "blank:mousewheel",
@@ -213,7 +206,7 @@
 
         // create elements
         const class1 = new JointJSClass();
-        class1.position(GRID_SIZE * 5, GRID_SIZE * 8);
+        class1.position(GRID_SIZE * 4, GRID_SIZE * 8);
         class1.set("name", "Hello");
         class1.set("attributes", [
             "attr1: Data",
@@ -294,16 +287,6 @@
         const translate = paper.translate();
         paper.translate(translate.tx + dx, translate.ty + dy);
     });
-
-    function adjustVertices(
-        graph: joint.dia.Graph<
-            joint.dia.Graph.Attributes,
-            joint.dia.ModelSetOptions
-        > | null,
-        cell: any,
-    ) {
-        throw new Error("Function not implemented.");
-    }
 </script>
 
 <div>

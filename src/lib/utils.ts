@@ -19,6 +19,10 @@ export function darkenHSL(hslString: string, amount = 20): string {
     return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
+export function lengthToGridEven(length: number): number {
+    return Math.ceil(length / (GRID_SIZE * 2)) * GRID_SIZE * 2
+}
+
 export function getBorderColor(color: string): string {
     // check: white HSL (0% saturation, 100% lightness)
     if (/hsl\(\d+,\s*0%?,\s*100%?\)/.test(color)) {
@@ -36,6 +40,7 @@ export function textWidth(text: string) {
     const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 
     textElement.setAttribute('font-size', `${FONT_SIZE}px`);
+    // TODO: if this is called before Cascadia Code font is loaded, it chooses some other font, which is smaller,
     textElement.setAttribute('font-family', 'Cascadia Code');
     textElement.textContent = text;
 
