@@ -1,92 +1,92 @@
 <script lang="ts">
-    import * as joint from "@joint/core";
-    import { darkenHSL, getBorderColor } from "$lib/utils";
-    import ClassInspector from "./ClassInspector.svelte";
-    import AssociationInspector from "./AssociationInspector.svelte";
-    import { JointJSClass } from "../JointJS/JointJSClass";
-    import { JointJSAssociation } from "../JointJS/JointJSAssociation";
+import * as joint from "@joint/core";
+import { darkenHSL, getBorderColor } from "$lib/utils";
+import ClassInspector from "./ClassInspector.svelte";
+import AssociationInspector from "./AssociationInspector.svelte";
+import { JointJSClass } from "../JointJS/JointJSClass";
+import { JointJSAssociation } from "../JointJS/JointJSAssociation";
+import { JointJSGeneralization } from "../JointJS/JointJSGeneralization";
+import GeneralizationInspector from "./GeneralizationInspector.svelte";
 
-    const { component }: { component: joint.dia.Element | joint.dia.Link } =
-        $props();
-    let componentIsElement = $derived(component instanceof joint.dia.Element);
+const {
+	component,
+	graph,
+}: { component: joint.dia.Element | joint.dia.Link; graph: joint.dia.Graph } =
+	$props();
+let componentIsElement = $derived(component instanceof joint.dia.Element);
 
-    const strokeFills = [
-        { color: "hsl(0,0%,100%)" },
-        { color: "hsl(280,27%,87%)" },
-        { color: "hsl(215,85%,92%)" },
-        { color: "hsl(117,30%,87%)" },
-        { color: "hsl(31,100%,90%)" },
-        { color: "hsl(45,100%,90%)" },
-        { color: "hsl(3,76%,89%)" },
-    ];
+const strokeFills = [
+	{ color: "hsl(0,0%,100%)" },
+	{ color: "hsl(280,27%,87%)" },
+	{ color: "hsl(215,85%,92%)" },
+	{ color: "hsl(117,30%,87%)" },
+	{ color: "hsl(31,100%,90%)" },
+	{ color: "hsl(45,100%,90%)" },
+	{ color: "hsl(3,76%,89%)" },
+];
 
-    const strokes = strokeFills;
+const strokes = strokeFills;
 
-    const fillStyles = [{ value: "default" }];
+const fillStyles = [{ value: "default" }];
 
-    const strokeStyles = [
-        { name: "Solid Thick", value: "0" },
-        { name: "Dashed", value: "8 8" },
-        { name: "Long Dashed", value: "15 5" },
-        { name: "Dense Dashed", value: "20 2" },
-        { name: "Dotted", value: "2 5" },
-        { name: "Sparse Dotted", value: "2 10" },
-    ];
+const strokeStyles = [
+	{ name: "Solid Thick", value: "0" },
+	{ name: "Dashed", value: "8 8" },
+	{ name: "Long Dashed", value: "15 5" },
+	{ name: "Dense Dashed", value: "20 2" },
+	{ name: "Dotted", value: "2 5" },
+	{ name: "Sparse Dotted", value: "2 10" },
+];
 
-    const strokeWidths = [
-        { value: 1 },
-        { value: 3 },
-        { value: 5 },
-        { value: 7 },
-    ];
+const strokeWidths = [{ value: 1 }, { value: 3 }, { value: 5 }, { value: 7 }];
 
-    const changeFillColor = (
-        e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
-        color: string,
-    ) => {
-        e.preventDefault();
+const changeFillColor = (
+	e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
+	color: string,
+) => {
+	e.preventDefault();
 
-        component.attr("body/fill", color);
-    };
+	component.attr("body/fill", color);
+};
 
-    const changeStrokeColor = (
-        e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
-        color: string,
-    ) => {
-        e.preventDefault();
+const changeStrokeColor = (
+	e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
+	color: string,
+) => {
+	e.preventDefault();
 
-        if (componentIsElement) component.attr("body/stroke", darkenHSL(color));
-        else component.attr("line/stroke", color);
-    };
+	if (componentIsElement) component.attr("body/stroke", darkenHSL(color));
+	else component.attr("line/stroke", color);
+};
 
-    const changeFillStyle = (
-        e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
-        style: string,
-    ) => {
-        e.preventDefault();
+const changeFillStyle = (
+	e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
+	style: string,
+) => {
+	e.preventDefault();
 
-        return;
-    };
+	return;
+};
 
-    const changeStrokeStyle = (
-        e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
-        style: string,
-    ) => {
-        e.preventDefault();
+const changeStrokeStyle = (
+	e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
+	style: string,
+) => {
+	e.preventDefault();
 
-        if (componentIsElement) component.attr("body/strokeDasharray", style);
-        else component.attr("line/strokeDasharray", style);
-    };
+	if (componentIsElement) component.attr("body/strokeDasharray", style);
+	else component.attr("line/strokeDasharray", style);
+};
 
-    const changeStrokeWidth = (
-        e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
-        strokeWidth: number,
-    ) => {
-        e.preventDefault();
+const changeStrokeWidth = (
+	e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement },
+	strokeWidth: number,
+) => {
+	e.preventDefault();
 
-        if (componentIsElement) component.attr("body/strokeWidth", strokeWidth);
-        else component.attr("line/strokeWidth", strokeWidth + 1);
-    };
+	if (componentIsElement) component.attr("body/strokeWidth", strokeWidth);
+	else component.attr("line/strokeWidth", strokeWidth + 1);
+};
 </script>
 
 <div class="p-4">
@@ -183,5 +183,8 @@
         <ClassInspector {component} />
     {:else if component instanceof JointJSAssociation}
         <AssociationInspector {component} />
+    {:else if component instanceof JointJSGeneralization}
+        <GeneralizationInspector {component} {graph} />
     {/if}
+
 </div>
