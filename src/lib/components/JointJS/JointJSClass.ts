@@ -2,8 +2,41 @@ import type { IUMLClass } from '$lib/types/uml';
 import { FONT_SIZE, GRID_SIZE, lengthToGridEven, textWidth } from '$lib/utils';
 import * as joint from '@joint/core';
 
+function getPerimeterPorts(width: number, height: number) {
+    let portSerialId = 0
+    let ports = []
+
+    for (let x = 0; x <= width; x += GRID_SIZE) {
+        portSerialId++;
+        ports.push({
+            id: `port-t-${portSerialId}`,
+            args: { x, y: 0 },
+        })
+        portSerialId++;
+        ports.push({
+            id: `port-t-${portSerialId}`,
+            args: { x, y: height },
+        })
+    }
+
+    for (let y = GRID_SIZE; y < height; y += GRID_SIZE) {
+        portSerialId++;
+        ports.push({
+            id: `port-t-${portSerialId}`,
+            args: { x: 0, y },
+        })
+        portSerialId++;
+        ports.push({
+            id: `port-t-${portSerialId}`,
+            args: { x: width, y },
+        })
+    }
+
+    return ports
+}
+
 export const JointJSClass = joint.dia.Element.define(
-    'custom.UMLClass',
+    'custom.JointJSClass',
     {
         name: 'Class',
         attributes: [],
@@ -27,14 +60,17 @@ export const JointJSClass = joint.dia.Element.define(
             divider1: {
                 x1: 0, x2: 'calc(w)', y1: GRID_SIZE * 2, y2: GRID_SIZE * 2,
                 stroke: 'black',
-                strokeWidth: .5,
+                strokeWidth: 1,
             },
             divider2: {
                 x1: 0,
                 x2: 'calc(w)',
                 stroke: 'black',
-                strokeWidth: .5,
+                strokeWidth: 1,
             }
+        },
+        ports: {
+            items: []
         }
     },
     {
@@ -47,7 +83,6 @@ export const JointJSClass = joint.dia.Element.define(
         },
 
         update: function(this: IUMLClass) {
-            console.log("bella ciao")
             const name = this.get('name');
             const attributes = this.get('attributes') || [];
             const operations = this.get('operations') || [];
@@ -107,11 +142,32 @@ export const JointJSClass = joint.dia.Element.define(
                 y += GRID_SIZE * 2;
             })
 
-            this.resize(
-                Math.max(lengthToGridEven(this.size().width), width),
-                Math.max(lengthToGridEven(this.size().height), lengthToGridEven(y))
-            );
+            width = Math.max(lengthToGridEven(this.size().width), width);
+            const height = Math.max(lengthToGridEven(this.size().height), lengthToGridEven(y))
+
+            this.resize(width, height);
             this.attr(attrs);
+            this.set('ports', {
+                items: getPerimeterPorts(width, height).map(port => {
+                    return {
+                        attrs: {
+                            body: {
+                                magnet: true,
+                                width: 6,
+                                height: 6,
+                                x: -3,
+                                y: -3,
+                                fill: 'red'
+                            },
+                        },
+                        markup: [{
+                            tagName: 'rect',
+                            selector: 'body'
+                        }],
+                        ...port
+                    }
+                })
+            })
             this.set('markup', markup)
         }
     }

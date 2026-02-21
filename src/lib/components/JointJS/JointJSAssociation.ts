@@ -9,7 +9,7 @@ const RECT = {
 }
 
 export const JointJSAssociation = joint.dia.Link.define(
-    'custom.UMLAssociation',
+    'custom.JointJSAssociation',
     {
         ...joint.dia.Link.prototype.defaults,
         sourceMultiplicity: '0..*',

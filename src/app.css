@@ -6,13 +6,10 @@
 }
 
 .material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 200,
-  'GRAD' 0,
-  'opsz' 40
-}
-
-.card {
-    @apply rounded-md shadow-sm/50 shadow-gray-400;
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 20;
+    font-size: 1.2em;
 }
