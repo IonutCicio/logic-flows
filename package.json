@@ -22,6 +22,8 @@
 	},
 	"dependencies": {
 		"@joint/core": "^4.2.3",
+		"@lucide/svelte": "^0.575.0",
+		"@sveltejs/adapter-static": "^3.0.10",
 		"@tailwindcss/vite": "^4.1.18",
 		"tailwindcss": "^4.1.18"
 	}

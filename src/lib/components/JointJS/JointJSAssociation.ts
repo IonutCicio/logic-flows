@@ -1,11 +1,12 @@
 import type { IUMLLink } from "$lib/types/uml";
-import { FONT_SIZE, GRID_SIZE } from "$lib/utils";
+import { conf } from "$lib";
+import { get } from 'svelte/store';
 import * as joint from "@joint/core";
 
 const RECT = {
     fill: 'white',
     stroke: 'white',
-    strokeWidth: GRID_SIZE / 2
+    strokeWidth: get(conf).gridSize / 2
 }
 
 export const JointJSAssociation = joint.dia.Link.define(
@@ -13,7 +14,7 @@ export const JointJSAssociation = joint.dia.Link.define(
     {
         ...joint.dia.Link.prototype.defaults,
         sourceMultiplicity: '0..*',
-        name: 'Association',
+        name: 'association',
         targetMultiplicity: '0..*',
         attrs: {
             line: {
@@ -30,9 +31,9 @@ export const JointJSAssociation = joint.dia.Link.define(
         labels: [
             // 0: Source Multiplicity
             {
-                position: GRID_SIZE,
+                position: get(conf).gridSize * 1.5,
                 attrs: {
-                    text: { 'font-size': FONT_SIZE },
+                    text: { 'font-size': get(conf).fontSize },
                     rect: RECT,
                 }
             },
@@ -41,17 +42,18 @@ export const JointJSAssociation = joint.dia.Link.define(
                 position: 0.5,
                 attrs: {
                     text: {
-                        'font-size': FONT_SIZE,
+                        'font-size': get(conf).fontSize,
                         'font-style': 'italic'
                     },
                     rect: RECT,
+                    wdith: get(conf).gridSize * 5
                 }
             },
             // 2: Target Multiplicity
             {
-                position: -GRID_SIZE,
+                position: -get(conf).gridSize * 1.5,
                 attrs: {
-                    text: { 'font-size': FONT_SIZE },
+                    text: { 'font-size': get(conf).fontSize },
                     rect: RECT,
                 }
             }

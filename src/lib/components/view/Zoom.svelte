@@ -1,9 +1,9 @@
 <script lang="ts">
+    import { paper } from "$lib/utils";
     import * as joint from "@joint/core";
+    import { ZoomIn, ZoomOut } from "@lucide/svelte";
 
-    const { paper }: { paper: joint.dia.Paper } = $props();
-
-    let zoomLevel: number = $state(100);
+    let zoom: number = $state(100);
     let zoomX: number = 0;
     let zoomY: number = 0;
 
@@ -12,7 +12,7 @@
             "blank:mousewheel",
             (event: joint.dia.Event, x: number, y: number, delta: number) => {
                 event.preventDefault();
-                zoomLevel = Math.max(zoomLevel + delta * 10, 20);
+                zoom = Math.max(zoom + delta * 10, 20);
                 zoomX = x;
                 zoomY = y;
             },
@@ -25,7 +25,7 @@
 
         const localPoint = paper.clientToLocalPoint({ x, y });
 
-        paper.scale(zoomLevel * 0.01);
+        paper.scale(zoom * 0.01);
 
         const newLocalPoint = paper.clientToLocalPoint({ x, y });
         const dx = Math.min(
@@ -43,24 +43,15 @@
 </script>
 
 <button
-    class="grid place-items-center rounded-md w-8 h-8"
-    onclick={(e) => {
-        e.preventDefault();
-        zoomLevel -= 10;
-    }}
+    class="grid place-items-center rounded-md w-7 h-7 hover:bg-gray-200"
+    onclick={() => (zoom -= 10)}
 >
-    <span class="material-symbols-outlined"> zoom_out </span>
+    <ZoomOut size={16} />
 </button>
-<input type="number" bind:value={zoomLevel} class="w-14" />
+<input type="number" bind:value={zoom} class="w-14" />
 <button
-    class="grid place-items-center rounded-md w-8 h-8"
-    onclick={(e) => {
-        e.preventDefault();
-        zoomLevel += 10;
-    }}
+    class="grid place-items-center rounded-md w-7 h-7 hover:bg-gray-200"
+    onclick={() => (zoom += 10)}
 >
-    <span class="material-symbols-outlined"> zoom_in </span>
+    <ZoomIn size={16} />
 </button>
-
-<!-- <div class="flex items-center gap-3 bg-white px-3 py-2 card"> -->
-<!-- </div> -->

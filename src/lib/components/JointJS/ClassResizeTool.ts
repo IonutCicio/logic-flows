@@ -1,6 +1,8 @@
+import { conf } from "$lib";
 import * as joint from "@joint/core";
+import { get } from "svelte/store";
 
-export const ResizeTool = joint.elementTools.Control.extend({
+export const ClassResizeTool = joint.elementTools.Control.extend({
     children: [
         {
             tagName: "image",
@@ -13,28 +15,28 @@ export const ResizeTool = joint.elementTools.Control.extend({
             }
         },
         {
-      tagName: "rect",
-      selector: "extras",
-      attributes: {
-        "pointer-events": "none",
-        fill: "none",
-        stroke: "#33334F",
-        "stroke-dasharray": "2,4",
-        rx: 5,
-        ry: 5
-      }
+            tagName: "rect",
+            selector: "extras",
+            attributes: {
+                "pointer-events": "none",
+                fill: "none",
+                stroke: "#33334F",
+                "stroke-dasharray": "2,4",
+                rx: get(conf).gridSize,
+                ry: get(conf).gridSize
+            }
+        }
+    ],
+    getPosition: function(view: joint.dia.ElementView) {
+        const model = view.model;
+        const { width, height } = model.size();
+        return { x: width, y: height };
+    },
+    setPosition: function(view: joint.dia.ElementView, coordinates: joint.dia.Point) {
+        const model = view.model;
+        model.resize(
+            coordinates.x - get(conf).gridSize * 2,
+            coordinates.y - get(conf).gridSize * 2
+        );
     }
-  ],
-  getPosition: function (view: joint.dia.ElementView) {
-    const model = view.model;
-    const { width, height } = model.size();
-    return { x: width, y: height };
-  },
-  setPosition: function (view: joint.dia.ElementView, coordinates: joint.dia.Point) {
-    const model = view.model;
-    model.resize(
-      Math.max(coordinates.x - 10, 1),
-      Math.max(coordinates.y - 10, 1)
-    );
-  }
 });
