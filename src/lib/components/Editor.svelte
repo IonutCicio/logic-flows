@@ -1,207 +1,195 @@
 <script lang="ts">
-    // TODO: reset view button or something
-    import * as joint from "@joint/core";
-    import { darkenHSL, EditorMode, GRID_SIZE } from "$lib/utils";
-    import { exampleDiagram as example } from "$lib/example";
-    import { ResizeTool } from "./JointJS/Resize";
-    import { JointJSClass } from "./JointJS/JointJSClass";
-    import PropertyInspector from "$lib/components/view/PropertyInspector.svelte";
-    import Toolbar from "./Toolbar.svelte";
-    import { JointJSAssociation } from "./JointJS/JointJSAssociation";
-    import GeneralizationInstantiator from "./view/GeneralizationInstantiator.svelte";
+// TODO: reset view button or something
+import * as joint from "@joint/core";
+import { darkenHSL, EditorMode, GRID_SIZE } from "$lib/utils";
+import { exampleDiagram as example } from "$lib/example";
+import { ResizeTool } from "./JointJS/Resize";
+import { JointJSClass } from "./JointJS/JointJSClass";
+import PropertyInspector from "$lib/components/view/PropertyInspector.svelte";
+import Toolbar from "./Toolbar.svelte";
+import { JointJSAssociation } from "./JointJS/JointJSAssociation";
+import GeneralizationInstantiator from "./view/GeneralizationInstantiator.svelte";
 
-    let editorMode: EditorMode = $state(EditorMode.Selection);
-    let selectedComponent = $state.raw<
-        joint.dia.ElementView | joint.dia.LinkView | null
-    >(null);
-    let isTypesMenuOpen: boolean = false;
-    let isPanning = $state.raw(false);
+let editorMode: EditorMode = $state(EditorMode.Selection);
+let selectedComponent = $state.raw<
+	joint.dia.ElementView | joint.dia.LinkView | null
+>(null);
+let isTypesMenuOpen: boolean = false;
+let isPanning = $state.raw(false);
 
-    const cellNamespace = {
-        ...joint.shapes,
-        custom: {
-            JointJSClass,
-            JointJSAssociation,
-        },
-    };
+const cellNamespace = {
+	...joint.shapes,
+	custom: {
+		JointJSClass,
+		JointJSAssociation,
+	},
+};
 
-    let paperEl: HTMLElement;
-    let graph: joint.dia.Graph = new joint.dia.Graph(
-        {},
-        {
-            cellNamespace: cellNamespace,
-        },
-    );
-    let paper: joint.dia.Paper = new joint.dia.Paper({
-        model: graph,
-        background: { color: "white" },
-        cellViewNamespace: cellNamespace,
-        gridSize: GRID_SIZE,
-        drawGrid: {
-            name: "fixedDot",
-        },
-        defaultRouter: {
-            name: "manhattan",
-            args: {},
-        },
-        linkPinning: false,
-        defaultLink: function (_cellView: any, _magnet: any) {
-            if (editorMode == EditorMode.Association) {
-                return new JointJSAssociation();
-            }
+let paperEl: HTMLElement;
+let graph: joint.dia.Graph = new joint.dia.Graph(
+	{},
+	{
+		cellNamespace: cellNamespace,
+	},
+);
+let paper: joint.dia.Paper = new joint.dia.Paper({
+	model: graph,
+	background: { color: "white" },
+	cellViewNamespace: cellNamespace,
+	gridSize: GRID_SIZE,
+	drawGrid: {
+		name: "fixedDot",
+	},
+	defaultRouter: {
+		name: "manhattan",
+		args: {},
+	},
+	linkPinning: false,
+	defaultLink: function (_cellView: any, _magnet: any) {
+		if (editorMode == EditorMode.Association) {
+			return new JointJSAssociation();
+		}
 
-            return new joint.shapes.standard.Link();
-            // return nothing; (no association possibile if in other modes
-        },
-        validateConnection: function (
-            cellViewS,
-            _magnetS,
-            cellViewT,
-            magnetT,
-            _end,
-            linkView,
-        ) {
-            // TODO: validate link type too! take linkView.model and check its an association or a assoc. class
+		return new joint.shapes.standard.Link();
+		// return nothing; (no association possibile if in other modes
+	},
+	validateConnection: function (
+		cellViewS,
+		_magnetS,
+		cellViewT,
+		magnetT,
+		_end,
+		linkView,
+	) {
+		// TODO: validate link type too! take linkView.model and check its an association or a assoc. class
 
-            return (
-                cellViewS.model instanceof JointJSClass &&
-                cellViewT.model instanceof JointJSClass &&
-                magnetT?.getAttribute("port") != null &&
-                linkView.model instanceof JointJSAssociation
-            );
-        },
-        validateMagnet: function (_cellView, magnet) {
-            if (
-                editorMode != EditorMode.Association &&
-                editorMode != EditorMode.Generalization
-            ) {
-                return false;
-            }
-            return magnet.getAttribute("port") != null;
-        },
-    });
+		return (
+			cellViewS.model instanceof JointJSClass &&
+			cellViewT.model instanceof JointJSClass &&
+			magnetT?.getAttribute("port") != null &&
+			linkView.model instanceof JointJSAssociation
+		);
+	},
+	validateMagnet: function (_cellView, magnet) {
+		if (
+			editorMode != EditorMode.Association &&
+			editorMode != EditorMode.Generalization
+		) {
+			return false;
+		}
+		return magnet.getAttribute("port") != null;
+	},
+});
 
-    function addGeneralizationToGraph(gen: joint.dia.Link) {
-        gen.router("manhattan");
-        gen.addTo(graph);
-        editorMode = EditorMode.Selection;
-    }
+function addGeneralizationToGraph(gen: joint.dia.Link) {
+	gen.router("manhattan");
+	gen.addTo(graph);
+	editorMode = EditorMode.Selection;
+}
 
-    $effect(() => {
-        paper.setElement(paperEl);
-        paper.setDimensions(paperEl.clientWidth, window.innerHeight);
-        paper.render();
+$effect(() => {
+	paper.setElement(paperEl);
+	paper.setDimensions(paperEl.clientWidth, window.innerHeight);
+	paper.render();
 
-        paper.on("blank:pointerclick", (_event, x, y) => {
-            if (selectedComponent) {
-                selectedComponent.removeTools();
-                joint.highlighters.stroke.remove(
-                    selectedComponent,
-                    "highlight-selected",
-                );
-                selectedComponent = null;
-                return;
-            }
+	paper.on("blank:pointerclick", (_event, x, y) => {
+		if (selectedComponent) {
+			selectedComponent.removeTools();
+			joint.highlighters.stroke.remove(selectedComponent, "highlight-selected");
+			selectedComponent = null;
+			return;
+		}
 
-            if (editorMode == EditorMode.Class) {
-                const obj = new JointJSClass();
-                obj.position(x, y);
-                obj.addTo(graph);
-            }
-        });
-        // });
+		if (editorMode == EditorMode.Class) {
+			const obj = new JointJSClass();
+			obj.position(x, y);
+			obj.addTo(graph);
+		}
+	});
+	// });
 
-        paper.on("cell:pointerclick", (cellView: joint.dia.CellView) => {
-            // prevents highliting multiple components
-            if (selectedComponent) {
-                joint.highlighters.stroke.remove(
-                    selectedComponent,
-                    "highlight-selected",
-                );
-            }
+	paper.on("cell:pointerclick", (cellView: joint.dia.CellView) => {
+		// prevents highliting multiple components
+		if (selectedComponent) {
+			joint.highlighters.stroke.remove(selectedComponent, "highlight-selected");
+		}
 
-            // for some reasons, cellView.mode.isElement() does not type restrict, so typescript needs this
-            const cellViewIsElementView =
-                cellView instanceof joint.dia.ElementView;
+		// for some reasons, cellView.mode.isElement() does not type restrict, so typescript needs this
+		const cellViewIsElementView = cellView instanceof joint.dia.ElementView;
 
-            if (
-                cellViewIsElementView ||
-                cellView instanceof joint.dia.LinkView
-            ) {
-                selectedComponent = cellView;
-                if (cellViewIsElementView) {
-                    cellView.addTools(
-                        new joint.dia.ToolsView({
-                            tools: [
-                                new ResizeTool({
-                                    selector: "body",
-                                }),
-                            ],
-                        }),
-                    );
-                }
-            } else {
-                return;
-            }
+		if (cellViewIsElementView || cellView instanceof joint.dia.LinkView) {
+			selectedComponent = cellView;
+			if (cellViewIsElementView) {
+				cellView.addTools(
+					new joint.dia.ToolsView({
+						tools: [
+							new ResizeTool({
+								selector: "body",
+							}),
+						],
+					}),
+				);
+			}
+		} else {
+			return;
+		}
 
-            joint.highlighters.stroke.add(
-                cellView,
-                cellViewIsElementView
-                    ? { selector: "body" }
-                    : { selector: "line" },
-                "highlight-selected",
-                {
-                    padding: cellViewIsElementView ? 6 : 0,
-                    layer: cellViewIsElementView ? null : "back", // "back" prevents the highlighter to cover the link
-                    attrs: {
-                        stroke: cellViewIsElementView
-                            ? darkenHSL(cellView.model.attr("body/stroke"))
-                            : darkenHSL(cellView.model.attr("line/stroke")),
-                        "stroke-width": cellViewIsElementView ? 3 : 12,
-                    },
-                },
-            );
-        });
+		joint.highlighters.stroke.add(
+			cellView,
+			cellViewIsElementView ? { selector: "body" } : { selector: "line" },
+			"highlight-selected",
+			{
+				padding: cellViewIsElementView ? 6 : 0,
+				layer: cellViewIsElementView ? null : "back", // "back" prevents the highlighter to cover the link
+				attrs: {
+					stroke: cellViewIsElementView
+						? darkenHSL(cellView.model.attr("body/stroke"))
+						: darkenHSL(cellView.model.attr("line/stroke")),
+					"stroke-width": cellViewIsElementView ? 3 : 12,
+				},
+			},
+		);
+	});
 
-        paper.on({
-            "blank:pointerdown": (evt, x, y) => {
-                evt.preventDefault();
-                evt.stopPropagation();
-                // TODO: maybe with enum?
-                isPanning = true;
-                evt.data = { x, y };
-            },
-            "blank:pointermove cell:pointermove": (evt) => {
-                if (!isPanning) {
-                    return;
-                }
-                // this is a joint.dia.Event as long as isPanning = true
-                evt.preventDefault();
-                evt.stopPropagation();
+	paper.on({
+		"blank:pointerdown": (evt, x, y) => {
+			evt.preventDefault();
+			evt.stopPropagation();
+			// TODO: maybe with enum?
+			isPanning = true;
+			evt.data = { x, y };
+		},
+		"blank:pointermove cell:pointermove": (evt) => {
+			if (!isPanning) {
+				return;
+			}
+			// this is a joint.dia.Event as long as isPanning = true
+			evt.preventDefault();
+			evt.stopPropagation();
 
-                const currentPoint = paper.clientToLocalPoint(
-                    evt.clientX ?? 0,
-                    evt.clientY ?? 0,
-                );
-                const dx = (currentPoint.x ?? 0) - evt.data.x;
-                const dy = (currentPoint.y ?? 0) - evt.data.y;
+			const currentPoint = paper.clientToLocalPoint(
+				evt.clientX ?? 0,
+				evt.clientY ?? 0,
+			);
+			const dx = (currentPoint.x ?? 0) - evt.data.x;
+			const dy = (currentPoint.y ?? 0) - evt.data.y;
 
-                const translate = paper.translate();
-                paper.translate(translate.tx + dx, translate.ty + dy);
-            },
-            "blank:pointerup cell:pointerup": (evt) => {
-                // this is a joint.dia.Event as long as isPanning = true
-                if (!isPanning) {
-                    return;
-                }
+			const translate = paper.translate();
+			paper.translate(translate.tx + dx, translate.ty + dy);
+		},
+		"blank:pointerup cell:pointerup": (evt) => {
+			// this is a joint.dia.Event as long as isPanning = true
+			if (!isPanning) {
+				return;
+			}
 
-                evt.preventDefault();
-                isPanning = false;
-            },
-        });
+			evt.preventDefault();
+			isPanning = false;
+		},
+	});
 
-        example(graph);
-    });
+	example(graph);
+});
 </script>
 
 <svelte:window
@@ -216,7 +204,7 @@
         <div id="paper" bind:this={paperEl}></div>
 
         {#if selectedComponent}
-            <div class="absolute top-5 left-5 bg-white border w-50 h-4/5">
+            <div class="absolute top-5 left-5 bg-white border w-50 h-4/5 overflow-auto">
                 <PropertyInspector
                     component={selectedComponent.model}
                     {graph}
