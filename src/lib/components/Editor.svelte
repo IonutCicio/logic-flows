@@ -29,15 +29,6 @@
     let paperEl: HTMLElement;
 
     export function handleKeydown(e: KeyboardEvent) {
-        if (e.key == "Backspace" || e.key == "Delete") {
-            for (const cellView of selectedViews) {
-                cellView.remove();
-            }
-            selectedViews = [];
-
-            return;
-        }
-
         if (e.ctrlKey || e.metaKey) {
             if (e.key.toLowerCase() === "s") {
                 e.preventDefault();
@@ -67,6 +58,15 @@
             e.target instanceof HTMLElement &&
             e.target.tagName.toLowerCase() == "input"
         ) {
+            return;
+        }
+
+        if (e.key == "Backspace" || e.key == "Delete") {
+            for (const cellView of selectedViews) {
+                cellView.remove();
+            }
+            selectedViews = [];
+
             return;
         }
 
