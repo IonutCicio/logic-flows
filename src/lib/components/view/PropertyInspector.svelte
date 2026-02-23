@@ -11,7 +11,6 @@
     const { cellViews }: { cellViews: joint.dia.CellView[] } = $props();
     const component = cellViews.length == 1 ? cellViews[0].model : null;
     let componentIsElement = $derived(component instanceof joint.dia.Element);
-    console.log(componentIsElement);
 
     const strokeFills = [
         { color: "hsl(0,0%,100%)" },

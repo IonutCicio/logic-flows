@@ -7,21 +7,21 @@
         exportJSON,
         exportSVG,
         importJSON,
-        darkenHSL,
     } from "$lib/utils";
-    import { exampleDiagram } from "$lib/example";
     import { JointJSClass } from "./JointJS/JointJSClass";
     import PropertyInspector from "$lib/components/view/PropertyInspector.svelte";
     import Toolbar from "./view/Toolbar.svelte";
-    import GeneralizationInstantiator from "./view/GeneralizationInstantiator.svelte";
     import { ClassResizeTool } from "./JointJS/ClassResizeTool";
+    import { JointJSNote } from "./JointJS/JointJSNote";
+    import { JointJSAssociation } from "./JointJS/JointJSAssociation";
+    import { JointJSGeneralization } from "./JointJS/JointJSGeneralization";
 
     $effect(() => {
         window.addEventListener("keydown", handleKeydown);
     });
 
     let editorMode: EditorMode = $state(EditorMode.Panning);
-    let selectedViews = $state.raw<joint.dia.CellView[] | null>(null);
+    let selectedViews = $state.raw<joint.dia.CellView[]>([]);
     let isTypesMenuOpen: boolean = false;
     let selectionRectangle: joint.shapes.standard.Rectangle =
         new joint.shapes.standard.Rectangle();
@@ -29,6 +29,15 @@
     let paperEl: HTMLElement;
 
     export function handleKeydown(e: KeyboardEvent) {
+        if (e.key == "Backspace" || e.key == "Delete") {
+            for (const cellView of selectedViews) {
+                cellView.remove();
+            }
+            selectedViews = [];
+
+            return;
+        }
+
         if (e.ctrlKey || e.metaKey) {
             if (e.key.toLowerCase() === "s") {
                 e.preventDefault();
@@ -43,6 +52,14 @@
             if (e.key.toLowerCase() === "i") {
                 e.preventDefault();
                 importJSON();
+            }
+
+            if (e.key.toLowerCase() === "c") {
+            }
+
+            if (e.key.toLowerCase() === "v") {
+                // selectedCellView.clone()
+                // TODO: get current mouse position, convert to paper position and place copy here
             }
         }
 
@@ -78,7 +95,7 @@
         }
     }
 
-    function select(cellViews: joint.dia.CellView[] | null) {
+    function select(cellViews: joint.dia.CellView[]) {
         if (selectedViews) {
             for (const cellView of selectedViews) {
                 cellView.hideTools();
@@ -91,7 +108,7 @@
 
         selectedViews = cellViews;
 
-        if (cellViews) {
+        if (cellViews.length > 0) {
             if (cellViews.length == 1) {
                 cellViews[0].showTools();
             }
@@ -105,10 +122,10 @@
                         padding: isClass ? 6 : 0,
                         // layer: isClass && cellViews.length > 1 ? null : "back", // "back" prevents the highlighter to cover the link
                         attrs: {
-                            // stroke: "black",
-                            stroke: isClass
-                                ? darkenHSL(cellView.model.attr("body/stroke"))
-                                : darkenHSL(cellView.model.attr("line/stroke")),
+                            stroke: "black",
+                            // stroke: isClass
+                            //    ? darkenHSL(cellView.model.attr("body/stroke"))
+                            //    : darkenHSL(cellView.model.attr("line/stroke")),
                             // "stroke-width": isClass ? 3 : 12,
                         },
                     },
@@ -119,7 +136,74 @@
 
     $effect(() => {
         paper.setElement(paperEl);
-        paper.setDimensions(paperEl.clientWidth, window.innerHeight);
+        paper.setDimensions(paperEl.clientWidth, paperEl.clientHeight);
+
+        paper.options.defaultLink = function (_cellView: any, _magnet: any) {
+            if (editorMode == EditorMode.Association) {
+                return new JointJSAssociation();
+            }
+
+            if (editorMode == EditorMode.Generalization) {
+                return new JointJSGeneralization();
+            }
+
+            return new joint.shapes.standard.Link();
+        };
+
+        paper.options.validateMagnet = function (cellView, magnet) {
+            if (
+                editorMode != EditorMode.Association &&
+                editorMode != EditorMode.Generalization
+            ) {
+                return false;
+            }
+
+            return true;
+        };
+
+        paper.options.validateConnection = function (
+            cellViewS,
+            magnetS,
+            cellViewT,
+            magnetT,
+            _end,
+            linkView,
+        ) {
+            if (!magnetT || !magnetS) {
+                return false;
+            }
+
+            const portT = magnetT.getAttribute("port");
+            const portS = magnetS.getAttribute("port");
+
+            const isBad = graph.getLinks().some((link) => {
+                if (link.id == linkView.model.id) {
+                    return false;
+                }
+
+                return (
+                    link.get("source").port == portT ||
+                    link.get("target").port == portT ||
+                    link.get("source").port == portS ||
+                    link.get("target").port == portS
+                );
+            });
+
+            if (isBad) {
+                return false;
+            }
+
+            return (
+                cellViewS.model instanceof JointJSClass &&
+                cellViewT.model instanceof JointJSClass &&
+                magnetT?.getAttribute("port") != null &&
+                ((editorMode == EditorMode.Association &&
+                    linkView.model instanceof JointJSAssociation) ||
+                    (editorMode == EditorMode.Generalization &&
+                        linkView.model instanceof JointJSGeneralization))
+            );
+        };
+
         paper.render();
 
         graph.on("add", function (cell) {
@@ -142,7 +226,7 @@
                 );
             }
 
-            if (cell instanceof JointJSClass) {
+            if (cell instanceof JointJSClass || cell instanceof JointJSNote) {
                 cellView.addTools(
                     new joint.dia.ToolsView({
                         tools: [
@@ -160,13 +244,23 @@
         });
 
         paper.on("blank:pointerclick", (_event, x, y) => {
-            select(null);
-
             if (editorMode == EditorMode.Class) {
                 const obj = new JointJSClass();
                 obj.position(x, y);
                 obj.addTo(graph);
+                select([paper.findViewByModel(obj)]);
+                return;
             }
+
+            if (editorMode == EditorMode.Note) {
+                const obj = new JointJSNote();
+                obj.position(x, y);
+                obj.addTo(graph);
+                select([paper.findViewByModel(obj)]);
+                return;
+            }
+
+            select([]);
         });
 
         paper.on("cell:pointerclick", (cellView: joint.dia.CellView) => {
@@ -224,7 +318,10 @@
                 }
             },
             "blank:pointerup cell:pointerup": (_evt) => {
-                if (selectionRectangle.graph != null) {
+                if (
+                    editorMode == EditorMode.Selection &&
+                    selectionRectangle.graph != null
+                ) {
                     select(
                         paper
                             .findCellViewsInArea(selectionRectangle.getBBox())
@@ -237,8 +334,6 @@
                 }
             },
         });
-
-        exampleDiagram(graph);
     });
 </script>
 
@@ -246,36 +341,22 @@
     on:resize={() => paper.setDimensions(window.innerWidth, window.innerHeight)}
 />
 
-<div>
-    <div class="relative">
-        <div id="paper" bind:this={paperEl}></div>
+<div class="relative flex flex-col w-full h-screen">
+    <Toolbar bind:editorMode />
 
-        {#if selectedViews && selectedViews.length > 0}
+    <div class="relative w-full h-full">
+        <div id="paper" class="w-full h-full" bind:this={paperEl}></div>
+
+        {#if selectedViews.length > 0}
             <div
-                class="absolute top-11 left-0 bg-white border-r border-b w-50 h-4/5"
+                class="absolute top-0 left-0 h-full bg-white border-r w-72 border-gray-300"
             >
                 <PropertyInspector cellViews={selectedViews} />
             </div>
         {/if}
     </div>
 
-    <Toolbar bind:editorMode />
-
     {#if isTypesMenuOpen}
         <div class="absolute right-0 top-0 w-72 bg-white h-full">types</div>
-    {/if}
-
-    {#if editorMode === EditorMode.Generalization}
-        <div class="absolute right-0 top-20 w-72 bg-white h-full">
-            <GeneralizationInstantiator
-                classes={graph
-                    ?.getCells()
-                    .filter((c) => c instanceof JointJSClass) ?? []}
-                onCreate={(gen) => {
-                    gen.addTo(graph);
-                    editorMode = EditorMode.Panning;
-                }}
-            />
-        </div>
     {/if}
 </div>

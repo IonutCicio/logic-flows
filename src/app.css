@@ -9,7 +9,13 @@
     stroke: transparent !important;
 }
 
-
 .joint-port-body:hover {
     stroke: #FFB800;
+}
+
+
+
+button:disabled,
+button:disabled:hover { 
+    @apply bg-gray-500;
 }

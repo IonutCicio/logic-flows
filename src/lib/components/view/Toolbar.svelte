@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { EditorMode } from "$lib/utils";
+    import { EditorMode, paper } from "$lib/utils";
     import Zoom from "./Zoom.svelte";
     import { exportJSON, exportSVG, importJSON } from "$lib/utils";
     import {
@@ -12,6 +12,7 @@
         StickyNote,
         Undo,
         Redo,
+        Scan,
     } from "@lucide/svelte";
 
     let {
@@ -74,7 +75,7 @@
 </script>
 
 <div
-    class="absolute top-0 left-0 w-full flex items-center gap-2 bg-white p-2 border-b border-gray-300"
+    class="w-full flex items-center gap-2 bg-white p-2 border-b border-gray-300"
 >
     <button
         title="Menu"
@@ -99,8 +100,19 @@
     {/each}
     <hr class="h-5 w-0 border-l border-gray-300" />
     <Zoom />
+    <button
+        title="Reset view"
+        class="w-7 h-7 grid place-items-center rounded-md hover:bg-gray-200"
+        onclick={() => {
+            paper.translate(0, 0);
+            paper.scale(1);
+        }}
+    >
+        <Scan size={16} />
+    </button>
     <hr class="h-5 w-0 border-l border-gray-300" />
     <button
+        disabled
         title="Undo"
         class="w-7 h-7 grid place-items-center rounded-md hover:bg-gray-200"
     >
@@ -116,10 +128,15 @@
 </div>
 
 {#if isMenuOpen}
-    <div class="absolute left-0 top-20 bg-white rounded-md border">
+    <div
+        class="absolute left-2 top-10 bg-white rounded-md border border-gray-300 z-10 p-2"
+    >
         {#each items as item}
             <div>
-                <button onclick={item.func}>
+                <button
+                    onclick={item.func}
+                    class="w-full hover:bg-gray-200 text-left"
+                >
                     {item.label}
                 </button>
             </div>

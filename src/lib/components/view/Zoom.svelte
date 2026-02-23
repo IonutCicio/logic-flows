@@ -12,7 +12,7 @@
             "blank:mousewheel",
             (event: joint.dia.Event, x: number, y: number, delta: number) => {
                 event.preventDefault();
-                zoom = Math.max(zoom + delta * 10, 20);
+                zoom = Math.min(Math.max(zoom + delta * 10, 60), 200);
                 zoomX = x;
                 zoomY = y;
             },

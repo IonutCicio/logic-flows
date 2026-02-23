@@ -3,6 +3,7 @@ import { get } from 'svelte/store';
 import { JointJSClass } from "./components/JointJS/JointJSClass";
 import { JointJSAssociation } from "./components/JointJS/JointJSAssociation";
 import { conf } from ".";
+import { JointJSNote } from "./components/JointJS/JointJSNote";
 
 export enum EditorMode {
     Panning,
@@ -18,6 +19,7 @@ const cellNamespace = {
     custom: {
         JointJSClass,
         JointJSAssociation,
+        JointJSNote,
     },
 };
 
@@ -53,59 +55,6 @@ export const paper: joint.dia.Paper = new joint.dia.Paper({
     },
     snapLabels: true,
     linkPinning: false,
-    defaultLink:
-        function(_cellView: any, _magnet: any) {
-            if (editorMode == EditorMode.Association) {
-                return new JointJSAssociation();
-            }
-
-            return new joint.shapes.standard.Link();
-        },
-    validateConnection: function(
-        cellViewS,
-        magnetS,
-        cellViewT,
-        magnetT,
-        _end,
-        linkView,
-    ) {
-        if (!magnetT || !magnetS) {
-            return false;
-        }
-
-        const portT = magnetT.getAttribute('port');
-        const portS = magnetS.getAttribute('port');
-
-        const isBad = graph.getLinks().some(link => {
-            if (link.id == linkView.model.id) {
-                return false;
-            }
-
-            return link.get('source').port == portT || link.get('target').port == portT || link.get('source').port == portS || link.get('target').port == portS;
-        })
-
-        if (isBad) {
-            return false;
-        }
-
-        return (
-            cellViewS.model instanceof JointJSClass &&
-            cellViewT.model instanceof JointJSClass &&
-            magnetT?.getAttribute("port") != null &&
-            linkView.model instanceof JointJSAssociation
-        );
-    },
-    validateMagnet: function(cellView, magnet) {
-        if (
-            editorMode != EditorMode.Association &&
-            editorMode != EditorMode.Generalization
-        ) {
-
-            return false;
-        }
-
-        return true;
-    },
 });
 
 export function darkenHSL(hslString: string, amount = 20): string {
