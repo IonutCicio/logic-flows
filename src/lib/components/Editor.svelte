@@ -25,6 +25,7 @@
     let isTypesMenuOpen: boolean = false;
     let selectionRectangle: joint.shapes.standard.Rectangle =
         new joint.shapes.standard.Rectangle();
+    let copiedViews: joint.dia.CellView[];
 
     let paperEl: HTMLElement;
 
@@ -46,11 +47,17 @@
             }
 
             if (e.key.toLowerCase() === "c") {
+                copiedViews = selectedViews;
             }
 
             if (e.key.toLowerCase() === "v") {
-                // selectedCellView.clone()
-                // TODO: get current mouse position, convert to paper position and place copy here
+                for (const cellView of copiedViews) {
+                    const newModel = cellView.model.clone();
+                    const pos = newModel.position();
+                    newModel.addTo(graph);
+                    const newCellView = paper.findViewByModel(newModel);
+                    newCellView.model.position(pos.x + 20, pos.y + 20);
+                }
             }
         }
 
@@ -270,17 +277,20 @@
 
         paper.on({
             "blank:pointerdown": (evt, x, y) => {
-                evt.data = { x, y };
-                selectionRectangle.position(x, y);
-                selectionRectangle.attr({
-                    body: {
-                        width: 0,
-                        height: 0,
-                        fill: "rgba(0, 162, 255, 0.1)",
-                        stroke: "#00A2FF",
-                    },
-                });
-                selectionRectangle.addTo(graph);
+                evt.data = { x, y, button: evt.button };
+
+                if (EditorMode.Selection && evt.data.button == 0) {
+                    selectionRectangle.position(x, y);
+                    selectionRectangle.attr({
+                        body: {
+                            width: 0,
+                            height: 0,
+                            fill: "rgba(0, 162, 255, 0.1)",
+                            stroke: "#00A2FF",
+                        },
+                    });
+                    selectionRectangle.addTo(graph);
+                }
             },
             "blank:pointermove cell:pointermove": (evt) => {
                 const currentPoint = paper.clientToLocalPoint(
@@ -288,7 +298,7 @@
                     evt.clientY ?? 0,
                 );
 
-                if (editorMode == EditorMode.Panning) {
+                if (editorMode == EditorMode.Panning || evt.data.button == 1) {
                     if (!evt.data) {
                         return;
                     }
@@ -299,7 +309,10 @@
                     paper.translate(translate.tx + dx, translate.ty + dy);
                 }
 
-                if (editorMode == EditorMode.Selection) {
+                if (
+                    editorMode == EditorMode.Selection &&
+                    evt.data.button == 0
+                ) {
                     const width = Math.max(
                         currentPoint.x - selectionRectangle.position().x,
                         0,
@@ -324,7 +337,9 @@
                 ) {
                     select(
                         paper
-                            .findCellViewsInArea(selectionRectangle.getBBox())
+                            .findCellViewsInArea(selectionRectangle.getBBox(), {
+                                strict: true,
+                            })
                             .filter(
                                 (cellView) =>
                                     cellView.model != selectionRectangle,
@@ -333,6 +348,15 @@
                     selectionRectangle.remove();
                 }
             },
+        });
+
+        const diagramJSON = localStorage.getItem("diagram");
+        if (diagramJSON) {
+            graph.fromJSON(JSON.parse(diagramJSON));
+        }
+
+        graph.on("all", function () {
+            localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
         });
     });
 </script>

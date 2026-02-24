@@ -110,10 +110,28 @@ export function textWidth(text: string) {
     return bbox.width;
 }
 
-// TODO: export svg without grid
 export function exportSVG() {
+    const bbox = paper.getContentBBox();
+    const svg = paper.el.querySelector("svg")?.cloneNode(true);
+    if (!svg || !bbox || !(svg instanceof Element)) {
+        return
+    }
+
+    svg.setAttribute('width', `${bbox.width}`);
+    svg.setAttribute('height', `${bbox.height}`);
+    svg.setAttribute('viewBox', `
+    ${bbox.x} 
+    ${bbox.y} 
+    ${bbox.width} 
+    ${bbox.height}
+`);
+
+
+    svg.querySelector('.joint-grid-layer')?.remove();
+    svg.querySelector('.joint-tools-layer')?.remove();
+
     const url = URL.createObjectURL(
-        new Blob([new XMLSerializer().serializeToString(paper.svg)], {
+        new Blob([new XMLSerializer().serializeToString(svg)], {
             type: "image/svg+xml;charset=utf-8",
         }),
     );
@@ -125,6 +143,44 @@ export function exportSVG() {
 
     URL.revokeObjectURL(url);
 }
+
+// function svgToPNG(svgString, width, height) {
+//     return new Promise((resolve) => {
+//         const img = new Image();
+//         const blob = new Blob([svgString], { type: "image/svg+xml" });
+//         const url = URL.createObjectURL(blob);
+//
+//         img.onload = function() {
+//             const canvas = document.createElement("canvas");
+//             canvas.width = width;
+//             canvas.height = height;
+//
+//             const ctx = canvas.getContext("2d");
+//             ctx.drawImage(img, 0, 0);
+//
+//             URL.revokeObjectURL(url);
+//             resolve(canvas);
+//         };
+//
+//         img.src = url;
+//     });
+// }
+//
+// const canvas = await svgToPNG(svgString, 1000, 800);
+// const pngDataUrl = canvas.toDataURL("image/png");
+//
+// async function copyCanvasToClipboard(canvas) {
+//     return new Promise((resolve) => {
+//         canvas.toBlob(async (blob) => {
+//             await navigator.clipboard.write([
+//                 new ClipboardItem({
+//                     "image/png": blob
+//                 })
+//             ]);
+//             resolve();
+//         });
+//     });
+// }
 
 export function exportJSON() {
     const url = URL.createObjectURL(
