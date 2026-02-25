@@ -202,13 +202,13 @@ export function importJSON() {
     input.accept = ".json";
 
     input.addEventListener("change", async (event: Event) => {
-        const file = event.target.files[0];
+        const file = (event.target as HTMLInputElement).files?.item(0);
         if (!file) {
             return;
         }
 
         try {
-            const text = await file.text();
+            const text = await file?.text();
             const json = JSON.parse(text);
 
             graph.fromJSON(json);

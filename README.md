@@ -46,6 +46,7 @@ You can preview the production build with `npm run preview`.
 6. [x] when creating a class, open the menu of the class 
 7. [x] add icons tooltips
 8. [ ] adjust UI (font sizes of stuff etc...) 
+    - [ ] better UI for selection (bring selection rectangle to the foreground, highlight selected items etc...)
 9. [x]  add GitHub action that compiles the website to HTML and publishes it to GitHub Pages
 10. [x] add shortcuts lik Ctrl+S to save JSON, and shortcuts for tools 
 11. [ ] make it work offline (with a ServiceWorker or something, if it's enough to download the html even better)
@@ -75,3 +76,6 @@ You can preview the production build with `npm run preview`.
 31. [x] remove grid and stuff when exporting JSON (and export just the graph components)
 32. [ ] create icon for project, change name to something nicer (rebranding) 
 33. [ ] when pressing Esc, all stuff closes and deselects
+34. [ ] add support for use-case diagram
+35. [ ] add support for instances (links and objects), and arrows that connect instances to classes (dashed)
+36. [ ] add support for exporting only selected items

@@ -1,56 +1,41 @@
-import type { IUMLClass, UMLAttribute, UMLOperation } from '$lib/types/uml';
+import { type IUMLClass, type UMLOperation } from '$lib/types/uml';
 import { lengthToGridEven, textWidth } from '$lib/utils';
 import { conf } from '$lib';
 import { get } from 'svelte/store';
 import * as joint from '@joint/core';
-
-function convertToString(attribute: UMLAttribute) {
-    return `${attribute.name}: ${attribute.type} ${attribute.multiplicity !== "1" ? `[${attribute.multiplicity}]` : ""}${attribute.isIdentifier ? "{id}" : ""}`;
-}
+import { ManuallyOrderedMap } from '$lib/collections.svelte';
 
 function operationToString(operation: UMLOperation): string {
     const paramsStr = operation.parameters
-        ?.map((param) => `${param.name}: ${param.type}`)
+        ?.map((param) => `${param.name}: ${param.type} `)
         .join(", ");
 
     const paramsPart = paramsStr ? `(${paramsStr})` : "()";
 
-    let result = `${operation.name}${paramsPart}`;
+    let result = `${operation.name}${paramsPart} `;
 
     if (operation.type) {
-        result += `: ${operation.type}`;
+        result += `: ${operation.type} `;
     }
 
     return result.trim();
 }
 
 function getPerimeterPorts(width: number, height: number, id: joint.dia.Cell.ID) {
-    let portSerialId = 0
     let ports = []
 
+    let portSerialId = 0
     for (let x = 0; x <= width; x += (get(conf).gridSize * 2)) {
         portSerialId++;
-        ports.push({
-            id: `${id}-port-t-${portSerialId}`,
-            args: { x, y: 0 },
-        })
-        ports.push({
-            id: `${id}-port-b-${portSerialId}`,
-            args: { x, y: height },
-        })
+        ports.push({ id: `${id}-port-t-${portSerialId} `, args: { x, y: 0 } })
+        ports.push({ id: `${id}-port-b-${portSerialId} `, args: { x, y: height } })
     }
 
     portSerialId = 0;
     for (let y = get(conf).gridSize; y < height; y += get(conf).gridSize) {
         portSerialId++;
-        ports.push({
-            id: `${id}-port-l-${portSerialId}`,
-            args: { x: 0, y },
-        })
-        ports.push({
-            id: `${id}-port-r-${portSerialId}`,
-            args: { x: width, y },
-        })
+        ports.push({ id: `${id}-port-l-${portSerialId} `, args: { x: 0, y } })
+        ports.push({ id: `${id}-port-r-${portSerialId} `, args: { x: width, y } })
     }
 
     return ports;
@@ -60,7 +45,7 @@ export const JointJSClass = joint.dia.Element.define(
     'custom.JointJSClass',
     {
         name: 'Class',
-        attributes: [],
+        attributes: new ManuallyOrderedMap(),
         operations: [],
         attrs: {
             body: {
@@ -108,8 +93,8 @@ export const JointJSClass = joint.dia.Element.define(
 
         update: function(this: IUMLClass) {
             const name = this.get("name");
-            const attributes = this.get("attributes") || [];
-            const operations = this.get("operations") || [];
+            const attributes = this.get("attributes") || {};
+            const operations = this.get("operations") || {};
 
             const attrs: Record<string, any> = {};
             const markup: string | joint.dia.MarkupJSON = [
@@ -123,41 +108,57 @@ export const JointJSClass = joint.dia.Element.define(
 
             attrs["divider1"] = {
                 visibility:
-                    attributes.length > 0 || operations.length > 0 ? "visible" : "hidden",
+                    Object.keys(attributes).length > 0 || operations.length > 0 ? "visible" : "hidden",
             };
 
             let width = lengthToGridEven(textWidth(name) + get(conf).gridSize)
             let y = get(conf).gridSize * 2; // divider1
 
-            attributes.forEach((attr, index) => {
-                const text = convertToString(attr);
-                width = Math.max(width, lengthToGridEven(textWidth(text) + get(conf).gridSize));
+            attributes.entries().forEach(([name, attr], index) => {
+                width = Math.max(width, lengthToGridEven(textWidth(`${name}: ${attr.toString()}`) + get(conf).gridSize));
 
-                attrs[`attribute${index}`] = {
-                    text: text,
-                    x: get(conf).gridSize / 2,
+                const text = {
                     y: y + get(conf).gridSize,
+                    fontSize: get(conf).fontSize,
+                }
+
+                attrs[`attribute-${index} `] = {
+                    x: get(conf).gridSize / 2,
                     textAnchor: "left",
                     textVerticalAnchor: "middle",
-                    fontSize: get(conf).fontSize,
+                    ...text
                 };
-                markup.push({ tagName: "text", selector: `attribute${index}` });
+                attrs[`attribute-name-${index} `] = { text: `${attr.name.toString()}:`, ...text };
+                attrs[`attribute-type-${index} `] = { text: ` ${attr.type.toString()}`, fontWeight: "normal", ...text };
+                attrs[`attribute-multiplicity-${index} `] = { text: attr.multiplicity.toString(), ...text }
+                attrs[`attribute-id-${index} `] = { text: attr.identifier.toString(), fontStyle: "italic", ...text }
+                markup.push({
+                    tagName: "text",
+                    selector: `attribute${index} `,
+                    children: [
+                        { tagName: "tspan", selector: `attribute-name-${index}` },
+                        { tagName: "tspan", selector: `attribute-type-${index}` },
+                        { tagName: "tspan", selector: `attribute-multiplicity-${index}` },
+                        { tagName: "tspan", selector: `attribute-id-${index}` }
+                    ]
+                });
 
                 y += get(conf).gridSize * 2;
+
             });
 
             attrs["divider2"] = {
                 y1: y,
                 y2: y,
                 visibility:
-                    attributes.length > 0 && operations.length > 0 ? "visible" : "hidden",
+                    Object.keys(attributes).length > 0 && operations.length > 0 ? "visible" : "hidden",
             };
 
             operations.forEach((op, index) => {
                 const text = operationToString(op);
                 width = Math.max(width, lengthToGridEven(textWidth(text) + get(conf).gridSize));
 
-                attrs[`operation${index}`] = {
+                attrs[`operation${index} `] = {
                     text: text,
                     x: get(conf).gridSize / 2,
                     y: y + get(conf).gridSize,
@@ -165,7 +166,7 @@ export const JointJSClass = joint.dia.Element.define(
                     textVerticalAnchor: "middle",
                     fontSize: get(conf).fontSize,
                 };
-                markup.push({ tagName: "text", selector: `operation${index}` });
+                markup.push({ tagName: "text", selector: `operation${index} ` });
 
                 y += get(conf).gridSize * 2;
             });
