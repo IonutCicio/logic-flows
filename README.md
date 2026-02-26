@@ -46,11 +46,13 @@ You can preview the production build with `npm run preview`.
 6. [x] when creating a class, open the menu of the class 
 7. [x] add icons tooltips
 8. [ ] adjust UI (font sizes of stuff etc...) 
-    - [ ] better UI for selection (bring selection rectangle to the foreground, highlight selected items etc...)
+    - [ ] better UI for selection 
+        - [x] bring selection rectangle to the foreground 
+        - [ ] highlight selected items etc...
 9. [x]  add GitHub action that compiles the website to HTML and publishes it to GitHub Pages
 10. [x] add shortcuts lik Ctrl+S to save JSON, and shortcuts for tools 
 11. [ ] make it work offline (with a ServiceWorker or something, if it's enough to download the html even better)
-12. [ ] better operations and attributes handling (specify name, type, multiplicty, whether it has id or not etc...); the goal i s to show different info with different styles (bold for type, italics for {id} etc...)
+12. [x] better operations and attributes handling (specify name, type, multiplicty, whether it has id or not etc...); the goal i s to show different info with different styles (bold for type, italics for {id} etc...)
 13. [x] create a `conf` global object 
     - [x] `FONT_SIZE`, `GRID_SIZE`,
     - [ ] `FONT_FAMILY`, `DEFAULT COLORS` for stuff, DEFAULT styles for stuff), add a menu to edit the config 
@@ -75,7 +77,15 @@ You can preview the production build with `npm run preview`.
 30. [ ] "is identifier" isn't enough, you need to be able to specify an optional id number
 31. [x] remove grid and stuff when exporting JSON (and export just the graph components)
 32. [ ] create icon for project, change name to something nicer (rebranding) 
-33. [ ] when pressing Esc, all stuff closes and deselects
+33. [x] when pressing Esc, all stuff closes and deselects
+    - [x] for now it deselects
+    - [ ] it must close menus too
 34. [ ] add support for use-case diagram
 35. [ ] add support for instances (links and objects), and arrows that connect instances to classes (dashed)
 36. [ ] add support for exporting only selected items
+37. [ ] always on hints under tool selection on usage (small, gray, with `<code></code>` too for some keys like Ctrl), maybe add possiblity disable hints
+38. [ ] store zoom to `localStorage`
+39. [x] handle association and generalization moving from one port to another
+40. [x] if a port is connect to an association, there aren't other links to that port; it's either multiple generalizations or one association
+41. [ ] update `localStorage` on deletion of elments too (or debug it at least)
+42. [ ] make `PropertyInspector` resizable

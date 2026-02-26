@@ -131,11 +131,9 @@ export class String1 {
 }
 
 export class UMLAttributeData {
-    constructor(
-        public type: String1,
-        public multiplicity: Multiplicity,
-        public identifier: Identifier,
-    ) { }
+    public type: String1 = new String1("Type")
+    public multiplicity: Multiplicity = new Multiplicity()
+    public identifier: Identifier = new Identifier()
 
     toString(): string {
         return `: ${this.type.toString()}${this.multiplicity.toString()}${this.identifier.toString()}`;

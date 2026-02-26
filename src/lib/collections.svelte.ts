@@ -4,7 +4,7 @@ export class ManuallyOrderedMap<K extends string | number | symbol, V> {
     private _index: Map<K, number> = new Map()
 
     // This is used to make the object reactive for Svelte
-    state = $state(0)
+    version = $state<number>(0)
 
     get(key: K): V | undefined {
         return this._records.get(key)
@@ -18,13 +18,13 @@ export class ManuallyOrderedMap<K extends string | number | symbol, V> {
         }
 
         this._records.set(key, value);
-        this.state++;
+        this.version++;
     }
 
     delete(key: K): void {
         this._records.delete(key);
         this._index.delete(key)
-        this.state++;
+        this.version++;
     }
 
     rename(key: K, newKey: K): void {
@@ -40,8 +40,7 @@ export class ManuallyOrderedMap<K extends string | number | symbol, V> {
 
         this._records.set(newKey, value);
         this._index.set(newKey, index);
-
-        this.state++;
+        this.version++;
     }
 
 
@@ -55,8 +54,7 @@ export class ManuallyOrderedMap<K extends string | number | symbol, V> {
 
         this._index.set(key1, index2);
         this._index.set(key2, index1);
-
-        this.state++;
+        this.version++;
     }
 
     keys(): K[] {
@@ -71,10 +69,12 @@ export class ManuallyOrderedMap<K extends string | number | symbol, V> {
         return Array.from(
             Array.from(this._index).sort(([_1, index1], [_2, index2]) => {
                 return (index1 as number) - (index2 as number)
-            }).map(([key, _]) => [key, (this._records.get(key) as V)]))
+            }).map(([key, _]) => {
+                return [key, (this._records.get(key) as V)];
+            }))
     }
 
-    get length(): number {
-        return Object.keys(this._records).length;
+    get size(): number {
+        return this._records.size;
     }
 }

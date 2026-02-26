@@ -3,6 +3,7 @@
 *:not(tspan) {
     font-family: 'Cascadia Code';
     font-weight: 300;
+    font-size: 13px;
 }
 
 .available-magnet {
@@ -14,8 +15,28 @@
 }
 
 
+button {
+    @apply grid place-items-center rounded-md hover:bg-gray-200 disabled:bg-gray-300;
+}
 
-button:disabled,
-button:disabled:hover { 
-    @apply bg-gray-500;
+button.icon {
+    @apply w-10 h-10;
+}
+
+button.selected {
+    @apply bg-gray-200;
+}
+
+input[type=text] {
+    /* @apply px-3 py-2! rounded-md border border-gray-300; */
+    @apply px-2 rounded-md border border-gray-300;
+    /* focus:ring-blue-500 focus:ring-2 transition focus:outline-none */
+}
+
+hr {
+    @apply border-gray-300;
+}
+
+code {
+    @apply text-gray-400;
 }

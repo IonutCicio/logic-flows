@@ -4,6 +4,7 @@ import { JointJSClass } from "./components/JointJS/JointJSClass";
 import { JointJSAssociation } from "./components/JointJS/JointJSAssociation";
 import { conf } from ".";
 import { JointJSNote } from "./components/JointJS/JointJSNote";
+import { JointJSGeneralization } from "./components/JointJS/JointJSGeneralization";
 
 export enum EditorMode {
     Panning,
@@ -19,16 +20,15 @@ const cellNamespace = {
     custom: {
         JointJSClass,
         JointJSAssociation,
+        JointJSGeneralization,
         JointJSNote,
     },
 };
 
 export const graph: joint.dia.Graph = new joint.dia.Graph(
     {},
-    { cellNamespace: cellNamespace },
+    { cellNamespace },
 );
-
-const editorMode = EditorMode.Association;
 
 export const paper: joint.dia.Paper = new joint.dia.Paper({
     model: graph,
@@ -40,18 +40,14 @@ export const paper: joint.dia.Paper = new joint.dia.Paper({
     },
     defaultRouter: {
         name: "manhattan",
-        args: {
-            padding: get(conf).gridSize * 2
-        },
+        args: {},
     },
     snapLinks: true,
-    labelsLayer: true,
     defaultConnectionPoint: { name: 'anchor' },
     markAvailable: true,
     interactive: {
         labelMove: true,
         linkMove: true,
-
     },
     snapLabels: true,
     linkPinning: false,
