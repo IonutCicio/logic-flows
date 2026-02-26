@@ -88,8 +88,8 @@
 <svelte:window
     onclick={(event: Event) => {
         if (isMenuOpen) {
-            isMenuOpen = false;
             event.stopPropagation();
+            isMenuOpen = false;
         }
     }}
 />

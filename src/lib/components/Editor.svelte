@@ -15,38 +15,50 @@
     import { JointJSNote } from "./JointJS/JointJSNote";
     import { JointJSAssociation } from "./JointJS/JointJSAssociation";
     import { JointJSGeneralization } from "./JointJS/JointJSGeneralization";
+    import Selector from "./view/Selector.svelte";
+
+    function select(x) {}
+    let selectedCellViews: joint.dia.CellView[] = $state([]);
 
     let editorMode: EditorMode = $state(EditorMode.Panning);
-    let selectedCellViews = $state<joint.dia.CellView[]>([]);
-    const selectionRectangle: joint.shapes.standard.Rectangle =
-        new joint.shapes.standard.Rectangle();
-
-    let copiedViews: joint.dia.CellView[];
+    let copiedViews: joint.dia.CellView[] = [];
 
     let paperEl: HTMLElement;
 
-    export function handleKeydown(e: KeyboardEvent) {
-        if (e.ctrlKey || e.metaKey) {
-            if (e.key.toLowerCase() === "s") {
-                e.preventDefault();
+    $effect(() => {
+        paper.setElement(paperEl);
+
+        const diagramJSON = localStorage.getItem("diagram");
+        if (diagramJSON) {
+            graph.fromJSON(JSON.parse(diagramJSON));
+        }
+
+        paper.setDimensions(paperEl.clientWidth, paperEl.clientHeight);
+        paper.render();
+    });
+
+    export function handleKeydown(event: KeyboardEvent) {
+        if (event.ctrlKey || event.metaKey) {
+            if (event.key.toLowerCase() === "s") {
+                event.preventDefault();
                 exportJSON();
             }
 
-            if (e.key.toLowerCase() === "e") {
-                e.preventDefault();
+            if (event.key.toLowerCase() === "e") {
+                event.preventDefault();
                 exportSVG();
             }
 
-            if (e.key.toLowerCase() === "i") {
-                e.preventDefault();
+            if (event.key.toLowerCase() === "i") {
+                event.preventDefault();
                 importJSON();
             }
 
-            if (e.key.toLowerCase() === "c") {
-                copiedViews = selectedCellViews;
+            if (event.key.toLowerCase() === "c") {
+                // copiedViews = selectedCellViews;
             }
 
-            if (e.key.toLowerCase() === "v") {
+            if (event.key.toLowerCase() === "v") {
                 for (const cellView of copiedViews) {
                     const newModel = cellView.model.clone();
                     const pos = newModel.position();
@@ -57,82 +69,48 @@
             }
         }
 
-        if (e.key == "Escape") {
-            select([]);
+        if (event.key == "Escape") {
+            // select([]);
         }
 
         if (
-            e.target instanceof HTMLElement &&
-            e.target.tagName.toLowerCase() == "input"
+            event.target instanceof HTMLElement &&
+            event.target.tagName.toLowerCase() == "input"
         ) {
             return;
         }
 
-        if (e.key == "Backspace" || e.key == "Delete") {
-            for (const cellView of selectedCellViews) {
-                cellView.model.remove();
-            }
-            selectedCellViews = [];
+        if (event.key == "Backspace" || event.key == "Delete") {
+            // for (const cellView of selectedCellViews) {
+            //     cellView.model.remove();
+            // }
+            // selectedCellViews = [];
 
             return;
         }
 
-        if (e.key === "1") {
+        if (event.key === "1") {
             editorMode = EditorMode.Panning;
         }
 
-        if (e.key === "2") {
+        if (event.key === "2") {
             editorMode = EditorMode.Selection;
         }
 
-        if (e.key === "3") {
+        if (event.key === "3") {
             editorMode = EditorMode.Class;
         }
 
-        if (e.key === "4") {
+        if (event.key === "4") {
             editorMode = EditorMode.Association;
         }
 
-        if (e.key === "5") {
+        if (event.key === "5") {
             editorMode = EditorMode.Generalization;
         }
 
-        if (e.key === "6") {
+        if (event.key === "6") {
             editorMode = EditorMode.Note;
-        }
-    }
-
-    function select(cellViews: joint.dia.CellView[]) {
-        for (const cellView of selectedCellViews) {
-            cellView.hideTools();
-            joint.highlighters.stroke.remove(cellView, "highlight-selected");
-        }
-
-        selectedCellViews = cellViews;
-
-        if (cellViews.length > 0) {
-            if (cellViews.length == 1) {
-                cellViews[0].showTools();
-            }
-            for (const cellView of cellViews) {
-                const isClass = cellView.model instanceof JointJSClass;
-                joint.highlighters.stroke.add(
-                    cellView,
-                    isClass ? { selector: "body" } : { selector: "line" },
-                    "highlight-selected",
-                    {
-                        padding: isClass ? 6 : 0,
-                        // layer: isClass && cellViews.length > 1 ? null : "back", // "back" prevents the highlighter to cover the link
-                        attrs: {
-                            stroke: "black",
-                            // stroke: isClass
-                            //    ? darkenHSL(cellView.model.attr("body/stroke"))
-                            //    : darkenHSL(cellView.model.attr("line/stroke")),
-                            // "stroke-width": isClass ? 3 : 12,
-                        },
-                    },
-                );
-            }
         }
     }
 
@@ -263,13 +241,13 @@
     };
 
     paper.on("blank:pointerclick", (event, x, y) => {
-        event.preventDefault();
+        // event.preventDefault();
 
         if (editorMode == EditorMode.Class) {
             const obj = new JointJSClass();
             obj.position(x, y);
             obj.addTo(graph);
-            select([paper.findViewByModel(obj)]);
+            // select([paper.findViewByModel(obj)]);
             return;
         }
 
@@ -277,115 +255,113 @@
             const obj = new JointJSNote();
             obj.position(x, y);
             obj.addTo(graph);
-            select([paper.findViewByModel(obj)]);
+            // select([paper.findViewByModel(obj)]);
             return;
         }
 
-        select([]);
+        // select([]);
     });
 
-    paper.on(
-        "cell:pointerclick",
-        function (cellView: joint.dia.CellView, evt: joint.dia.Event) {
-            evt.stopPropagation();
-            select([cellView]);
-            editorMode = EditorMode.Panning;
-        },
-    );
+    // paper.on(
+    //     "cell:pointerclick",
+    //     function (cellView: joint.dia.CellView, evt: joint.dia.Event) {
+    //         evt.stopPropagation();
+    //         select([cellView]);
+    //         editorMode = EditorMode.Panning;
+    //     },
+    // );
 
-    paper.on({
-        "blank:pointerdown": (evt, x, y) => {
-            evt.data = { x, y, button: evt.button };
+    // paper.on({
+    //     "blank:pointerdown": (evt, x, y) => {
+    //         evt.data = { x, y, button: evt.button };
+    //
+    //         if (EditorMode.Selection && evt.data && evt.data.button == 0) {
+    //             selectionRectangle.addTo(graph);
+    //             selectionRectangle.toFront();
+    //             selectionRectangle.position(x, y);
+    //             selectionRectangle.attr({
+    //                 body: {
+    //                     width: 0,
+    //                     height: 0,
+    //                     fill: "rgba(0, 162, 255, 0.1)",
+    //                     stroke: "#00A2FF",
+    //                 },
+    //             });
+    //         }
+    //     },
+    //     "blank:pointermove cell:pointermove": (evt) => {
+    //         const currentPoint = paper.clientToLocalPoint(
+    //             evt.clientX ?? 0,
+    //             evt.clientY ?? 0,
+    //         );
+    //
+    //         if (
+    //             evt.data &&
+    //             (editorMode == EditorMode.Panning || evt.data.button === 1)
+    //         ) {
+    //             const dx = (currentPoint.x ?? 0) - evt.data.x;
+    //             const dy = (currentPoint.y ?? 0) - evt.data.y;
+    //
+    //             const translate = paper.translate();
+    //             paper.translate(translate.tx + dx, translate.ty + dy);
+    //         }
+    //
+    //         if (
+    //             editorMode == EditorMode.Selection &&
+    //             evt.data &&
+    //             evt.data.button == 0
+    //         ) {
+    //             const width = Math.max(
+    //                 currentPoint.x - selectionRectangle.position().x,
+    //                 0,
+    //             );
+    //             const height = Math.max(
+    //                 currentPoint.y - selectionRectangle.position().y,
+    //                 0,
+    //             );
+    //             selectionRectangle.size(width, height);
+    //             selectionRectangle.attr({ body: { width, height } });
+    //         }
+    //     },
+    //     "blank:pointerup cell:pointerup": (_evt) => {
+    //         if (
+    //             editorMode == EditorMode.Selection &&
+    //             selectionRectangle.graph != null
+    //         ) {
+    //             select(
+    //                 paper
+    //                     .findCellViewsInArea(selectionRectangle.getBBox(), {
+    //                         strict: true,
+    //                     })
+    //                     .filter(
+    //                         (cellView) => cellView.model != selectionRectangle,
+    //                     ),
+    //             );
+    //             selectionRectangle.remove();
+    //         }
+    //     },
+    // });
 
-            if (EditorMode.Selection && evt.data && evt.data.button == 0) {
-                selectionRectangle.addTo(graph);
-                selectionRectangle.position(x, y);
-                selectionRectangle.attr({
-                    body: {
-                        width: 0,
-                        height: 0,
-                        fill: "rgba(0, 162, 255, 0.1)",
-                        stroke: "#00A2FF",
-                    },
-                });
-            }
-        },
-        "blank:pointermove cell:pointermove": (evt) => {
-            const currentPoint = paper.clientToLocalPoint(
-                evt.clientX ?? 0,
-                evt.clientY ?? 0,
-            );
-
-            if (
-                evt.data &&
-                (editorMode == EditorMode.Panning || evt.data.button === 1)
-            ) {
-                const dx = (currentPoint.x ?? 0) - evt.data.x;
-                const dy = (currentPoint.y ?? 0) - evt.data.y;
-
-                const translate = paper.translate();
-                paper.translate(translate.tx + dx, translate.ty + dy);
-            }
-
-            if (
-                editorMode == EditorMode.Selection &&
-                evt.data &&
-                evt.data.button == 0
-            ) {
-                const width = Math.max(
-                    currentPoint.x - selectionRectangle.position().x,
-                    0,
-                );
-                const height = Math.max(
-                    currentPoint.y - selectionRectangle.position().y,
-                    0,
-                );
-                selectionRectangle.size(width, height);
-                selectionRectangle.attr({ body: { width, height } });
-            }
-        },
-        "blank:pointerup cell:pointerup": (_evt) => {
-            if (
-                editorMode == EditorMode.Selection &&
-                selectionRectangle.graph != null
-            ) {
-                select(
-                    paper
-                        .findCellViewsInArea(selectionRectangle.getBBox(), {
-                            strict: true,
-                        })
-                        .filter(
-                            (cellView) => cellView.model != selectionRectangle,
-                        ),
-                );
-                selectionRectangle.remove();
-            }
-        },
-    });
-
-    $effect(() => {
-        paper.setElement(paperEl);
-        paper.setDimensions(paperEl.clientWidth, paperEl.clientHeight);
-        paper.render();
-
-        const diagramJSON = localStorage.getItem("diagram");
-        if (diagramJSON) {
-            graph.fromJSON(JSON.parse(diagramJSON));
-        }
-    });
+    let counter = 0;
 </script>
 
 <svelte:window
     onresize={() => paper.setDimensions(window.innerWidth, window.innerHeight)}
     onkeydown={handleKeydown}
+    onclick={() => {
+        counter++;
+        console.log("click", counter);
+    }}
 />
+
+<Selector bind:selectedCellViews bind:editorMode />
 
 <div class="relative flex flex-col w-full h-screen">
     <Toolbar bind:editorMode />
 
     <div class="flex w-full h-full">
         <div class="w-72 h-full bg-white border-r border-gray-300">
-            <PropertyInspector cellViews={selectedCellViews} />
+            <!-- <PropertyInspector cellViews={selectedCellViews} /> -->
         </div>
         <div id="paper" class="w-full h-full" bind:this={paperEl}></div>
     </div>

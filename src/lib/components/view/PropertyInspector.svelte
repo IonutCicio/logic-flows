@@ -90,11 +90,11 @@
 </script>
 
 <div class="flex flex-col gap-2 p-4">
-    <p class="text-sm font-medium! mb-1">Properties</p>
+    {#if cellViews.length > 0}
+        <p class="text-sm font-medium! mb-1">Properties</p>
+    {/if}
 
-    {#if cellViews.length === 0}
-        ...
-    {:else}
+    {#if false}
         <div class="flex flex-col gap-1">
             <p class="text-sm font-medium! mb-1">Fill</p>
             <div class="flex">

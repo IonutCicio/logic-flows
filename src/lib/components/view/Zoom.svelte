@@ -10,8 +10,12 @@
 
     paper.on(
         "blank:mousewheel",
-        (event: joint.dia.Event, x: number, y: number, delta: number): void => {
-            event.preventDefault();
+        function (
+            _event: joint.dia.Event,
+            x: number,
+            y: number,
+            delta: number,
+        ) {
             zoom = Math.min(Math.max(zoom + delta * 10, 60), 200);
             zoomX = x;
             zoomY = y;
