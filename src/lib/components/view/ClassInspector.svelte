@@ -132,7 +132,7 @@
                         type="checkbox"
                         checked={attribute.identifierEnabled}
                         oninput={() => {
-                            attributes[index].identifierEnabled = this.value;
+                            attributes[index].identifierEnabled = this.checked;
                         }}
                     />
 

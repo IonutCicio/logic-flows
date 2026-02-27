@@ -5,6 +5,12 @@
 
     let { zoom = $bindable(100) }: { zoom: number } = $props();
 
+    $effect(() => {
+        zoom = Number.parseInt(localStorage.getItem("zoom") || "100");
+    });
+
+    // localStorage.setItem("zoom", `${zoom}`);
+
     let zoomX: number = 0;
     let zoomY: number = 0;
 

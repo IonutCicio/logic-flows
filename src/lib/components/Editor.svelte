@@ -84,6 +84,7 @@
         }
 
         graph.on("add", addTools);
+        graph.getElements().forEach((cell) => cell.update());
     });
 
     export function handleKeydown(event: KeyboardEvent) {

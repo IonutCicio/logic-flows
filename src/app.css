@@ -16,7 +16,7 @@
 
 
 button {
-    @apply grid place-items-center rounded-md hover:bg-gray-200 disabled:bg-gray-300;
+    @apply grid place-items-center rounded-md hover:bg-gray-200 disabled:opacity-0;
 }
 
 button.icon {

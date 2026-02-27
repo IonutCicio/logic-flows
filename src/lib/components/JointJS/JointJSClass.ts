@@ -1,9 +1,8 @@
-import { UMLAttributeData, type IUMLClass, type UMLAttribute, type UMLOperation } from '$lib/types/uml';
-import { lengthToGridEven, textWidth } from '$lib/utils';
+import { type IUMLClass, type UMLAttribute, type UMLOperation } from '$lib/types/uml';
+import { graph, lengthToGridEven, textWidth } from '$lib/utils';
 import { conf } from '$lib';
 import { get } from 'svelte/store';
 import * as joint from '@joint/core';
-import { ManuallyOrderedMap } from '$lib/collections.svelte';
 
 function operationToString(operation: UMLOperation): string {
     const paramsStr = operation.parameters
@@ -27,15 +26,15 @@ function getPerimeterPorts(width: number, height: number, id: joint.dia.Cell.ID)
     let portSerialId = 0
     for (let x = 0; x <= width; x += (get(conf).gridSize * 2)) {
         portSerialId++;
-        ports.push({ id: `${id}-port-t-${portSerialId} `, args: { x, y: 0 } })
-        ports.push({ id: `${id}-port-b-${portSerialId} `, args: { x, y: height } })
+        ports.push({ id: `${id}-port-t-${portSerialId} `, args: { x, y: 0 }, type: 't' })
+        ports.push({ id: `${id}-port-b-${portSerialId} `, args: { x, y: height }, type: 'b' })
     }
 
     portSerialId = 0;
     for (let y = get(conf).gridSize; y < height; y += get(conf).gridSize) {
         portSerialId++;
-        ports.push({ id: `${id}-port-l-${portSerialId} `, args: { x: 0, y } })
-        ports.push({ id: `${id}-port-r-${portSerialId} `, args: { x: width, y } })
+        ports.push({ id: `${id}-port-l-${portSerialId} `, args: { x: 0, y }, type: 'l' })
+        ports.push({ id: `${id}-port-r-${portSerialId} `, args: { x: width, y }, type: 'r' })
     }
 
     return ports;
@@ -172,10 +171,32 @@ export const JointJSClass = joint.dia.Element.define(
             });
 
             width = Math.max(lengthToGridEven(this.size().width), width);
-            const height = Math.max(
+            let height = Math.max(
                 lengthToGridEven(this.size().height),
                 lengthToGridEven(y),
             );
+
+            for (const port of this.getPorts()) {
+                if (graph.getLinks().some((linkView) => {
+                    return linkView.get("source").port == port.id ||
+                        linkView.get("target").port == port.id
+                })) {
+
+                    if (port.type == "t" || port.type == "b") {
+                        width = Math.max(
+                            width,
+                            lengthToGridEven(port.args?.x as number)
+                        )
+                    }
+
+                    if (port.type == "l" || port.type == "r") {
+                        height = Math.max(
+                            height,
+                            lengthToGridEven(port.args?.y as number)
+                        )
+                    }
+                }
+            }
 
             this.resize(width, height);
             this.attr(attrs);

@@ -88,7 +88,7 @@ You can preview the production build with `npm run preview`.
 38. [ ] store zoom and translate to `localStorage`
 39. [x] handle association and generalization moving from one port to another
 40. [x] if a port is connect to an association, there aren't other links to that port; it's either multiple generalizations or one association
-41. [ ] update `localStorage` on deletion of elments too (or debug it at least)
+41. [x] update `localStorage` on deletion of elments too (or debug it at least)
 42. [x] make `PropertyInspector` resizable (fix: made it float over the paper, and changes size based on content)
 43. [ ] move selected items in tandem
 44. [ ] where possible (all items selected have the same style), show currently selected style 
@@ -96,3 +96,4 @@ You can preview the production build with `npm run preview`.
 46. [ ] todo: association label resize width on content change
 47. [ ] class, also change divider stroke color
 48. [ ] class, separate color for title and body
+49. [ ] if shift pressed while selecting, select multiple compoments (otherwise deselect only clicked)
