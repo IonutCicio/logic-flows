@@ -10,10 +10,10 @@ const RECT = {
 };
 
 export const JointJSGeneralization = joint.dia.Link.define(
-    "custom.UMLGeneralization",
+    "custom.JointJSGeneralization",
     {
         ...joint.dia.Link.prototype.defaults,
-        name: "Generalization",
+        // name: "Generalization",
         attrs: {
             line: {
                 connection: true,
@@ -22,8 +22,8 @@ export const JointJSGeneralization = joint.dia.Link.define(
                 fill: "none",
                 targetMarker: {
                     type: "path",
-                    d: "M 10 -5 0 0 10 5 Z",
-                    fill: "none",
+                    d: `M ${get(conf).gridSize} -${get(conf).gridSize / 2} 0 0 ${get(conf).gridSize} ${get(conf).gridSize / 2} Z`,
+                    fill: "white",
                     stroke: "hsl(0, 0%, 0%)",
                     strokeWidth: 2,
                 },

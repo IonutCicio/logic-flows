@@ -30,6 +30,22 @@ export const graph: joint.dia.Graph = new joint.dia.Graph(
     { cellNamespace },
 );
 
+
+graph.on("add remove change", function(cell: any) {
+    if (
+        !(
+            cell instanceof JointJSClass ||
+            cell instanceof JointJSAssociation ||
+            cell instanceof JointJSGeneralization ||
+            cell instanceof JointJSNote
+        )
+    ) {
+        return;
+    }
+
+    localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
+});
+
 export const paper: joint.dia.Paper = new joint.dia.Paper({
     model: graph,
     background: { color: "white" },
@@ -45,10 +61,6 @@ export const paper: joint.dia.Paper = new joint.dia.Paper({
     snapLinks: true,
     defaultConnectionPoint: { name: 'anchor' },
     markAvailable: true,
-    interactive: {
-        labelMove: true,
-        linkMove: true,
-    },
     snapLabels: true,
     linkPinning: false,
 });

@@ -1,4 +1,3 @@
-import type { ManuallyOrderedMap } from "$lib/utils";
 import * as joint from "@joint/core";
 
 // Note: this is only for autocomplete, jointjs handles them internally
@@ -7,7 +6,7 @@ export interface IUMLClass extends joint.dia.Element {
     update(): void;
 
     get(key: "name"): string;
-    get(key: "attributes"): ManuallyOrderedMap<string, UMLAttributeData>;
+    get(key: "attributes"): UMLAttribute[];
     get(key: "operations"): UMLOperation[];
 }
 
@@ -139,6 +138,17 @@ export class UMLAttributeData {
         return `: ${this.type.toString()}${this.multiplicity.toString()}${this.identifier.toString()}`;
     }
 }
+
+export interface UMLAttribute {
+    name: string,
+    type: string,
+    multiplicityLower: number
+    multiplicityUpper: number | "*"
+    identifierEnabled: true,
+    identifierNumber?: number
+}
+
+// export type Id = { enabled: false } | { enabled: true, number?: number };
 
 export interface UMLParameter {
     name: string;

@@ -1,4 +1,4 @@
-import { UMLAttributeData, type IUMLClass, type UMLOperation } from '$lib/types/uml';
+import { UMLAttributeData, type IUMLClass, type UMLAttribute, type UMLOperation } from '$lib/types/uml';
 import { lengthToGridEven, textWidth } from '$lib/utils';
 import { conf } from '$lib';
 import { get } from 'svelte/store';
@@ -45,7 +45,7 @@ export const JointJSClass = joint.dia.Element.define(
     'custom.JointJSClass',
     {
         name: 'Class',
-        attributes: new ManuallyOrderedMap(),
+        attributes: [],
         operations: [],
         attrs: {
             body: {
@@ -93,7 +93,7 @@ export const JointJSClass = joint.dia.Element.define(
 
         update: function(this: IUMLClass) {
             const name = this.get("name");
-            const attributes: ManuallyOrderedMap<string, UMLAttributeData> = this.get("attributes");
+            const attributes: UMLAttribute[] = this.get("attributes");
             const operations = this.get("operations");
 
             const attrs: Record<string, any> = {};
@@ -108,14 +108,17 @@ export const JointJSClass = joint.dia.Element.define(
 
             attrs["divider1"] = {
                 visibility:
-                    attributes.size > 0 || operations.length > 0 ? "visible" : "hidden",
+                    attributes.length > 0 || operations.length > 0 ? "visible" : "hidden",
             };
 
             let width = lengthToGridEven(textWidth(name) + get(conf).gridSize)
             let y = get(conf).gridSize * 2; // divider1
 
-            attributes.entries().forEach(([name, attr], index) => {
-                width = Math.max(width, lengthToGridEven(textWidth(`${name}: ${attr.toString()}`) + get(conf).gridSize));
+            attributes.forEach((attribute, index) => {
+                const multiplicityString = attribute.multiplicityLower === attribute.multiplicityUpper && attribute.multiplicityLower == 1 ? "" : ` [${attribute.multiplicityLower}..${attribute.multiplicityUpper}]`
+                const identifierString = attribute.identifierEnabled ? ` {id${attribute.identifierNumber ? attribute.identifierNumber : ""}}` : "";
+
+                width = Math.max(width, lengthToGridEven(textWidth(`${attribute.name}: ${attribute.type}${multiplicityString}${identifierString}`) + get(conf).gridSize));
 
                 const text = {
                     y: y + get(conf).gridSize,
@@ -125,10 +128,10 @@ export const JointJSClass = joint.dia.Element.define(
                 }
 
                 attrs[`attribute-${index}`] = { x: get(conf).gridSize / 2, ...text };
-                attrs[`attribute-name-${index}`] = { text: `${name}: `, ...text };
-                attrs[`attribute-type-${index}`] = { text: attr.type.toString(), fontWeight: "normal", ...text };
-                attrs[`attribute-multiplicity-${index}`] = { text: attr.multiplicity.toString(), ...text }
-                attrs[`attribute-id-${index}`] = { text: attr.identifier.toString(), fontStyle: "italic", ...text }
+                attrs[`attribute-name-${index}`] = { text: `${attribute.name}: `, ...text };
+                attrs[`attribute-type-${index}`] = { text: attribute.type, fontWeight: "normal", ...text };
+                attrs[`attribute-multiplicity-${index}`] = { text: multiplicityString, ...text }
+                attrs[`attribute-id-${index}`] = { text: identifierString, fontStyle: "italic", ...text }
                 markup.push({
                     tagName: "text",
                     selector: `attribute-${index}`,
@@ -148,7 +151,7 @@ export const JointJSClass = joint.dia.Element.define(
                 y1: y,
                 y2: y,
                 visibility:
-                    attributes.size > 0 && operations.length > 0 ? "visible" : "hidden",
+                    attributes.length > 0 && operations.length > 0 ? "visible" : "hidden",
             };
 
             operations.forEach((op, index) => {

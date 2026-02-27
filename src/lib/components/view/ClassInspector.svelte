@@ -2,6 +2,7 @@
     import {
         UMLAttributeData,
         type IUMLClass,
+        type UMLAttribute,
         type UMLOperation,
     } from "$lib/types/uml";
     import { ManuallyOrderedMap } from "$lib/collections.svelte";
@@ -10,16 +11,15 @@
     const { component }: { component: IUMLClass } = $props();
 
     let name: string = $state("");
-    let attributes = $state<ManuallyOrderedMap<string, UMLAttributeData>>(
-        new ManuallyOrderedMap(),
-    );
-    let entries = $derived.by(() => {
-        attributes.version;
-        return attributes.entries();
-    });
+    let attributes = $state<UMLAttribute[]>([]);
     let operations: UMLOperation[] = $state([]);
 
     let openAttribute: [string, UMLAttributeData] | null = $state(null);
+
+    // let entries = $derived.by(() => {
+    //     attributes.version;
+    //     return attributes.entries();
+    // });
 
     $effect(() => {
         name = component.get("name");
@@ -38,7 +38,6 @@
     });
 
     $effect(() => {
-        attributes.version;
         component.set("attributes", attributes);
         component.update();
     });
@@ -61,11 +60,11 @@
                 class="icon"
                 onclick={() => {
                     let default_attributes_index = 0;
-                    for (const [name, _] of entries) {
-                        if (name.startsWith("attribute")) {
+                    for (const attribute of attributes) {
+                        if (attribute.name.startsWith("attribute")) {
                             try {
                                 const id = Number(
-                                    name.slice("attribute".length),
+                                    attribute.name.slice("attribute".length),
                                 );
                                 if (id >= default_attributes_index) {
                                     default_attributes_index = id + 1;
@@ -74,10 +73,13 @@
                         }
                     }
 
-                    attributes.set(
-                        `attribute${default_attributes_index > 0 ? default_attributes_index : ""}`,
-                        new UMLAttributeData(),
-                    );
+                    attributes.push({
+                        name: `attribute${default_attributes_index > 0 ? default_attributes_index : ""}`,
+                        type: "Type",
+                        multiplicityLower: 1,
+                        multiplicityUpper: 1,
+                        identifier: { enabled: false },
+                    });
                 }}
             >
                 <Plus size={16} />
@@ -85,61 +87,92 @@
         </div>
 
         <div class="flex flex-col gap-2">
-            {#each entries as [name, attr], index}
+            {#each attributes as attribute, index}
                 <div class="flex items-center gap-2">
-                    <input class="w-30" type="text" value={name} />
+                    <input
+                        class="w-30"
+                        type="text"
+                        value={attribute.name}
+                        oninput={() => {
+                            attributes[index].name = this.value;
+                        }}
+                    />
                     :
-                    <input class="w-20" type="text" value={attr.type} />
+                    <input
+                        class="w-20"
+                        type="text"
+                        value={attribute.type}
+                        oninput={() => {
+                            attributes[index].type = this.value;
+                        }}
+                    />
 
-                    <!-- [ -->
-                    <!-- <input -->
-                    <!--     class="w-5" -->
-                    <!--     type="number" -->
-                    <!--     min="0" -->
-                    <!--     value={attr.multiplicity.lower} -->
-                    <!-- /> -->
-                    <!-- .. -->
-                    <!-- <input -->
-                    <!--     class="w-5" -->
-                    <!--     type="text" -->
-                    <!--     value={attr.multiplicity.upper} -->
-                    <!-- /> -->
-                    <!-- ] -->
-                    <!---->
-                    <!-- <input -->
-                    <!--     type="checkbox" -->
-                    <!--     value={attr.identifier.value.enabled} -->
-                    <!-- /> -->
-                    <!---->
-                    <!-- <input -->
-                    <!--     class="w-5" -->
-                    <!--     type="number" -->
-                    <!--     min="1" -->
-                    <!--     value={attr.identifier.value.enabled -->
-                    <!--         ? attr.identifier.value.number -->
-                    <!--         : ""} -->
-                    <!-- /> -->
+                    [
+                    <input
+                        class="w-10"
+                        type="number"
+                        min="0"
+                        value={attribute.multiplicityLower}
+                        oninput={() => {
+                            attribute.multiplicityLower = this.value;
+                        }}
+                    />
+                    ..
+                    <input
+                        class="w-7"
+                        type="text"
+                        value={attribute.multiplicityUpper}
+                        oninput={() => {
+                            attribute.multiplicityUpper = this.value;
+                        }}
+                    />
+                    ]
+
+                    <input
+                        type="checkbox"
+                        checked={attribute.identifierEnabled}
+                        oninput={() => {
+                            attributes[index].identifierEnabled = this.value;
+                        }}
+                    />
+
+                    <input
+                        class="w-10"
+                        type="number"
+                        min="1"
+                        value={attribute.identifierEnabled
+                            ? attribute.identifierNumber
+                            : ""}
+                        disabled={!attribute.identifierEnabled}
+                        oninput={() => {
+                            attribute.identifierNumber = this.value;
+                        }}
+                    />
 
                     <div class="flex gap-2">
                         <button
                             disabled={index === 0}
-                            onclick={() =>
-                                attributes.swap(name, entries[index - 1][0])}
+                            onclick={() => {
+                                // attributes.swap(name, entries[index - 1][0]);
+                            }}
                         >
                             <ArrowUp size={16} />
                         </button>
 
                         <button
-                            disabled={index === attributes.size - 1}
-                            onclick={() =>
-                                attributes.swap(name, entries[index + 1][0])}
+                            disabled={index === attributes.length - 1}
+                            onclick={() => {
+                                // attributes.swap(name, entries[index + 1][0]);
+                            }}
                         >
                             <ArrowDown size={16} />
                         </button>
 
                         <button
                             class="text-red-600"
-                            onclick={() => attributes.delete(name)}
+                            onclick={() => {
+                                attributes.splice(index, 1);
+                            }}
                         >
                             <X size={16} />
                         </button>
