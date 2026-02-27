@@ -129,22 +129,22 @@ export class String1 {
 
 }
 
-export class UMLAttributeData {
-    public type: String1 = new String1("Type")
-    public multiplicity: Multiplicity = new Multiplicity()
-    public identifier: Identifier = new Identifier()
-
-    toString(): string {
-        return `: ${this.type.toString()}${this.multiplicity.toString()}${this.identifier.toString()}`;
-    }
-}
+// export class UMLAttributeData {
+//     public type: String1 = new String1("Type")
+//     public multiplicity: Multiplicity = new Multiplicity()
+//     public identifier: Identifier = new Identifier()
+//
+//     toString(): string {
+//         return `: ${this.type.toString()}${this.multiplicity.toString()}${this.identifier.toString()}`;
+//     }
+// }
 
 export interface UMLAttribute {
     name: string,
     type: string,
     multiplicityLower: number
     multiplicityUpper: number | "*"
-    identifierEnabled: true,
+    identifierEnabled: boolean,
     identifierNumber?: number
 }
 

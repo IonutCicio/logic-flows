@@ -1,21 +1,20 @@
 <script lang="ts">
-    import { EditorMode, paper } from "$lib/utils";
+    import { EditorMode } from "$lib/utils";
     import Zoom from "./Zoom.svelte";
+    import History from "./History.svelte";
     import { exportJSON, exportSVG, importJSON } from "$lib/utils";
     import {
         Menu,
         Hand,
         SquareDashedMousePointer,
         Rows2,
-        Spline,
         MoveDown,
         StickyNote,
-        Undo,
-        Redo,
-        Scan,
         Folder,
         Download,
         Image,
+        Github,
+        CircleQuestionMark,
     } from "@lucide/svelte";
 
     let {
@@ -23,8 +22,6 @@
     }: {
         editorMode: EditorMode;
     } = $props();
-
-    let zoom: number = $state(100);
 
     const tools = [
         {
@@ -43,11 +40,6 @@
             mode: EditorMode.Class,
         },
         {
-            icon: Spline,
-            tooltip: "Association",
-            mode: EditorMode.Association,
-        },
-        {
             icon: MoveDown,
             tooltip: "Generalization",
             mode: EditorMode.Generalization,
@@ -61,7 +53,7 @@
 
     let isMenuOpen = $state(false);
 
-    const items = [
+    const menuItems = [
         {
             icon: Folder,
             label: "Import project JSON",
@@ -80,8 +72,6 @@
             shortcut: "Ctrl + E",
             func: exportSVG,
         },
-        // TODO: config options (font size)
-        // TODO: GitHub repository link
     ];
 </script>
 
@@ -120,31 +110,24 @@
         </button>
     {/each}
     <hr class="h-5 w-0 border-l" />
-    <Zoom bind:zoom />
-    <button
-        title="Reset view"
-        class="icon"
-        onclick={() => {
-            paper.translate(0, 0);
-            zoom = 100;
-        }}
-    >
-        <Scan size={16} />
-    </button>
+    <Zoom />
     <hr class="h-5 w-0 border-l" />
-    <button disabled title="Undo" class="icon">
-        <Undo size={16} />
-    </button>
-    <button disabled title="Redo" class="icon">
-        <Redo size={16} />
-    </button>
+    <History />
+    <hr class="h-5 w-0 border-l" />
+    <a
+        href="https://github.com/IonutCicio/logic-flows"
+        class="w-10 grid place-items-center"
+    >
+        <Github size={16} />
+    </a>
+    <CircleQuestionMark size={16} />
 </div>
 
 {#if isMenuOpen}
     <div
         class="absolute left-4 top-19 bg-white rounded-md border border-gray-300 z-10 p-2"
     >
-        {#each items as item}
+        {#each menuItems as item}
             <div>
                 <button
                     onclick={item.func}

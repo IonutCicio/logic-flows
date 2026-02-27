@@ -36,64 +36,83 @@ You can preview the production build with `npm run preview`.
 
 (non si possono editare i messaggi dopo 48 ore)
 
-1. [x] handle associations creation
-2. [x] handle generalization creation 
-3. [ ] handle association classes 
-4. [x] snap classes dimensions to grid
-    - [x] the `width` and `height` are multiples of `conf.gridSize * 2`
-    - [x] the `width` is at least the length necessary to show the attributes / operations and at most the `width` choosen by the user (and snapped) 
-5. [x] handle import and export of JSON
-6. [x] when creating a class, open the menu of the class 
-7. [x] add icons tooltips
-8. [ ] adjust UI (font sizes of stuff etc...) 
-    - [x] better UI for selection 
-        - [x] bring selection rectangle to the foreground 
-        - [x] highlight selected items etc...
-9. [x]  add GitHub action that compiles the website to HTML and publishes it to GitHub Pages
-10. [x] add shortcuts lik Ctrl+S to save JSON, and shortcuts for tools 
-11. [ ] make it work offline (with a ServiceWorker or something, if it's enough to download the html even better)
-    - [ ] an option would be to release a zip with the html files, and a python script that serves the files or something
-12. [x] better operations and attributes handling (specify name, type, multiplicty, whether it has id or not etc...); the goal i s to show different info with different styles (bold for type, italics for {id} etc...)
-13. [x] create a `conf` global object 
-    - [x] `FONT_SIZE`, `GRID_SIZE`,
-    - [ ] `FONT_FAMILY`, `DEFAULT COLORS` for stuff, DEFAULT styles for stuff), add a menu to edit the config 
-14. [ ] if the rectangles of two classes overlap, move them in order to not overlap anymore 
-15. [x] option to move an attribute from one class to another 
-16. [x] filter empty attributes 
-17. [x] ability to change attributes order 
-18. [x] ability to select multiple objects
-    - [x] and change common properties
-19. [x] update paper size when window is resized
-20. [x] use `localStorage` in order to remember diagram JSON
-21. [ ] keep history of changes in order to go back and forth
-22. [x] instead of moving when clicking with mouse, start selection (in selection mode)! In selection mode move only when mouse wheel is clicked (this second part is missing)
-23. [x] association delete button (or something) when association is selected (and is only one)
-24. [x] add fixed points to associations (and generalizations)
-25. [x] TODO: when resizing graph disappears (fixed: I didn't have to call .render() after setting the new dimensions, it did that autmatically)
-26. [ ] validated UML (no two attributes with same name, no two classes with same name etc...)
-27. [x] cancel button not working 
-28. [ ] add README description, otherwise people don't know how to use it correclty
-29. [x] allow copy, paste + delete key (or backspace) shotcut to remove object
-    - [x] when pasting, paste on mouse position
-30. [ ] "is identifier" isn't enough, you need to be able to specify an optional id number
-31. [x] remove grid and stuff when exporting JSON (and export just the graph components)
-32. [ ] create icon for project, change name to something nicer (rebranding) 
-33. [x] when pressing Esc, all stuff closes and deselects
-    - [x] for now it deselects
-    - [ ] it must close menus too
-34. [ ] add support for use-case diagram
-35. [ ] add support for instances (links and objects), and arrows that connect instances to classes (dashed)
-36. [ ] add support for exporting only selected items
-37. [ ] always on hints under tool selection on usage (small, gray, with `<code></code>` too for some keys like Ctrl), maybe add possiblity disable hints
-38. [ ] store zoom and translate to `localStorage`
-39. [x] handle association and generalization moving from one port to another
-40. [x] if a port is connect to an association, there aren't other links to that port; it's either multiple generalizations or one association
-41. [x] update `localStorage` on deletion of elments too (or debug it at least)
-42. [x] make `PropertyInspector` resizable (fix: made it float over the paper, and changes size based on content)
-43. [ ] move selected items in tandem
-44. [ ] where possible (all items selected have the same style), show currently selected style 
-45. [ ] todo: possibility to add / select custom colors
-46. [ ] todo: association label resize width on content change
-47. [ ] class, also change divider stroke color
-48. [ ] class, separate color for title and body
-49. [ ] if shift pressed while selecting, select multiple compoments (otherwise deselect only clicked)
+1. [ ] UML
+    1. [x] Associations creation
+    2. [ ] Association classes 
+    3. [x] Generalization creation 
+    4. [ ] Validated UML (no two attributes with same name, no two classes with same name etc...)
+    5. [x] "is identifier" isn't enough, you need to be able to specify an optional id number
+    6. [ ] Add support for use-case diagram
+    7. [ ] Add support for instances (links and objects), and arrows that connect instances to classes (dashed)
+3. [ ] Functionality
+    1. [x] Import JSON
+    2. [x] Export JSON
+    3. [x] GitHub action that compiles the website to HTML and publishes it to GitHub Pages
+    4. [ ] Offline application (with a ServiceWorker or something, if it's enough to download the html even better)
+        - [ ] An option would be to release a zip with the html files, and a python script that serves the files or something
+    5. [x] Create a `conf` global object 
+        - [x] `fontSize`, `gridSize`,
+        - [ ] `fontFamily`, `defaultStyle` etc...
+            - [ ] Menu to edit config (settings)
+    6. [ ] Keep history of changes in order to go back and forth (JSON TO STACK)
+    7. [x] Remove grid and stuff when exporting JSON (and export just the graph components)
+    8. [ ] Add support for exporting only selected items
+2. [ ] UI
+    1. [ ] Snap class dimensions to grid
+        - [x] The `width` and `height` are multiples of `conf.gridSize * 2`
+        - [x] The `width` is at least the length necessary to show the attributes / operations and at most the `width` choosen by the user (and snapped) 
+        - [x] The `width` and `height` are the least length necessary to keep all links on
+    2. [x] Icons tooltips
+    3. [x] UI for selection 
+        - [x] Bring selection rectangle to the foreground 
+        - [x] Highlight selected items
+    4. [ ] Adjust UI (font sizes of stuff etc...) 
+    5. [x] Update paper size when window is resized
+    6. [x] Association delete button (or something) when association is selected (and is only one)
+    7. [x] Add fixed points to associations (and generalizations)
+    8. [ ] Create icon for project, change name to something nicer (rebranding) 
+    9. [x] Make `PropertyInspector` resizable (fix: made it float over the paper, and changes size based on content)
+    10. [ ] Where possible (all items selected have the same style), show currently selected style 
+    11. [ ] Possibility to add / select custom colors
+    12. [ ] Class, also change divider stroke color
+    13. [ ] Class, separate color for title and body
+3. [ ] UX
+    1. [x] When creating a class, open the menu of the class 
+    2. [x] Shortcuts lik Ctrl+S to save JSON, and shortcuts for tools 
+    3. [x] Better operations and attributes handling (specify name, type, multiplicty, whether it has id or not etc...); the goal is to show different info with different styles (bold for type, italics for {id} etc...)
+    4. [ ] If the rectangles of two classes overlap, move them in order to not overlap anymore 
+    5. [x] Option to move an attribute from one class to another 
+    6. [x] Filter empty attributes 
+    7. [x] Ability to change attributes order 
+    8. [x] Ability to select multiple objects
+        - [x] And change common properties of selected objects
+    9. [x] Use `localStorage` in order to remember diagram JSON
+    10. [x] Instead of moving when clicking with mouse, start selection (in selection mode)! In selection mode move only when mouse wheel is clicked (this second part is missing)
+    11. [ ] Add README description, otherwise people don't know how to use it correclty
+    12. [x] Allow copy, paste + delete key (or backspace) shotcut to remove object
+        - [x] When pasting, paste on mouse position
+    13. [x] When pressing Esc, all stuff closes and deselects
+        - [x] For now it deselects
+        - [ ] It must close menus too
+    14. [ ] Store `zoom` and `translation` to `localStorage`, load on start
+    15. [ ] Always on hints under tool selection on usage (small, gray, with `<code></code>` too for some keys like Ctrl), maybe add possiblity disable hints
+    16. [x] Handle association and generalization moving from one port to another
+    17. [x] If a port is connect to an association, there aren't other links to that port; it's either multiple generalizations or one association
+    18. [ ] Move selected items in tandem
+    19. [ ] If shift pressed while selecting, select multiple compoments (otherwise deselect only clicked)
+    20. [ ] Edit class name on double click
+    21. [x] Ctrl +, Ctrl - for zoom
+    22. [ ] Fake class when dragging
+    23. [ ] Instructions when opening first time (use `localStorage`), + show help button (show help button could be enough, after github button)
+4. [ ] BUGS
+    1. [x] When resizing graph disappears (fixed: I didn't have to call .render() after setting the new dimensions, it did that autmatically)
+    2. [x] Cancel button not working 
+    3. [x] Update `localStorage` on deletion of elments too (or debug it at least)
+    4. [ ] Association label resize width on content change
+    5. [ ] Fix slow input when editing attributes and operations (i.e. save just after typing, not before)
+
+
+
+
+
+

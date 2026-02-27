@@ -26,7 +26,7 @@
     let mousePointToPaper: joint.g.Point = new joint.g.Point(0, 0);
     let paperElement: HTMLElement;
 
-    function addTools(cell: any) {
+    function initializeTools(cell: any) {
         const cellView = paper.findViewByModel(cell);
 
         if (cell.isLink()) {
@@ -79,15 +79,14 @@
         if (diagramJSON) {
             graph.fromJSON(JSON.parse(diagramJSON));
             for (const cell of graph.getCells()) {
-                addTools(cell);
+                initializeTools(cell);
             }
         }
 
-        graph.on("add", addTools);
-        graph.getElements().forEach((cell) => cell.update());
+        graph.on("add", initializeTools);
     });
 
-    export function handleKeydown(event: KeyboardEvent) {
+    function handleKeydown(event: KeyboardEvent) {
         if (event.ctrlKey || event.metaKey) {
             if (event.key.toLowerCase() === "s") {
                 event.preventDefault();
@@ -175,14 +174,10 @@
         }
 
         if (event.key === "4") {
-            editorMode = EditorMode.Association;
-        }
-
-        if (event.key === "5") {
             editorMode = EditorMode.Generalization;
         }
 
-        if (event.key === "6") {
+        if (event.key === "5") {
             editorMode = EditorMode.Note;
         }
     }
@@ -198,25 +193,11 @@
         _cellView: joint.dia.CellView,
         _magnet: SVGElement,
     ) {
-        if (editorMode === EditorMode.Association) {
-            return new JointJSAssociation();
-        }
-
         if (editorMode === EditorMode.Generalization) {
             return new JointJSGeneralization();
         }
 
-        return new joint.shapes.standard.Link();
-    };
-
-    paper.options.validateMagnet = function (
-        _cellView: joint.dia.CellView,
-        _magnet: SVGElement,
-    ) {
-        return (
-            editorMode === EditorMode.Association ||
-            editorMode === EditorMode.Generalization
-        );
+        return new JointJSAssociation();
     };
 
     paper.options.validateConnection = function (
@@ -269,17 +250,18 @@
     };
 
     paper.on(
-        "cell:pointerclick",
-        function (cellView: joint.dia.CellView, event: joint.dia.Event) {
-            event.stopPropagation();
+        "cell:pointerdown",
+        function (cellView: joint.dia.CellView, _event: joint.dia.Event) {
             selectedCellViews = [cellView];
+            editorMode = EditorMode.Panning;
         },
     );
 
     paper.on(
-        "blank:pointerclick",
-        function (_event: joint.dia.Event, x: number, y: number) {
+        "blank:pointerdown",
+        function (event: joint.dia.Event, x: number, y: number) {
             if (editorMode === EditorMode.Class) {
+                event.preventDefault();
                 const obj = new JointJSClass();
                 obj.position(x, y);
                 obj.addTo(graph);
@@ -288,6 +270,7 @@
             }
 
             if (editorMode === EditorMode.Note) {
+                event.preventDefault();
                 const obj = new JointJSNote();
                 obj.position(x, y);
                 obj.addTo(graph);
@@ -307,8 +290,7 @@
                     (selectedCellView) => selectedCellView === cellView,
                 )
             ) {
-                // console.log(event);
-                // move all
+                // TODO: move all
                 return;
             }
 
@@ -343,3 +325,17 @@
         </div>
     </div>
 </div>
+
+<!-- // graph.getElements().forEach((cell) => { -->
+<!-- //     if (cell instanceof JointJSClass) { -->
+<!-- //         cell.update(); -->
+<!-- //     } -->
+<!-- // }); -->
+<!-- // paper.options.validateMagnet = function ( -->
+<!-- //     _cellView: joint.dia.CellView, -->
+<!-- //     _magnet: SVGElement, -->
+<!-- // ) { -->
+<!-- //     return ( -->
+<!-- //         editorMode !== EditorMode.Class && editorMode !== EditorMode.Note -->
+<!-- //     ); -->
+<!-- // }; -->

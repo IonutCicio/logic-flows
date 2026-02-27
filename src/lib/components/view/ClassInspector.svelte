@@ -1,11 +1,9 @@
 <script lang="ts">
     import {
-        UMLAttributeData,
         type IUMLClass,
         type UMLAttribute,
         type UMLOperation,
     } from "$lib/types/uml";
-    import { ManuallyOrderedMap } from "$lib/collections.svelte";
     import { ArrowDown, ArrowUp, Plus, X } from "@lucide/svelte";
 
     const { component }: { component: IUMLClass } = $props();
@@ -13,13 +11,6 @@
     let name: string = $state("");
     let attributes = $state<UMLAttribute[]>([]);
     let operations: UMLOperation[] = $state([]);
-
-    let openAttribute: [string, UMLAttributeData] | null = $state(null);
-
-    // let entries = $derived.by(() => {
-    //     attributes.version;
-    //     return attributes.entries();
-    // });
 
     $effect(() => {
         name = component.get("name");
@@ -78,7 +69,7 @@
                         type: "Type",
                         multiplicityLower: 1,
                         multiplicityUpper: 1,
-                        identifier: { enabled: false },
+                        identifierEnabled: false,
                     });
                 }}
             >

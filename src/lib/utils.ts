@@ -10,10 +10,10 @@ export enum EditorMode {
     Panning,
     Selection,
     Class,
-    Association,
     Generalization,
     Note
 }
+
 
 const cellNamespace = {
     ...joint.shapes,

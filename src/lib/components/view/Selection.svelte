@@ -24,6 +24,7 @@
     let previousSelectedCellViews: joint.dia.CellView[] = [];
 
     $effect(() => {
+        graph.startBatch("update");
         for (const cellView of previousSelectedCellViews) {
             cellView.hideTools();
         }
@@ -33,6 +34,7 @@
         for (const cellView of selectedCellViews) {
             cellView.showTools();
         }
+        graph.stopBatch("update");
     });
 
     paper.on(
