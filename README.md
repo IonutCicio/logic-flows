@@ -93,3 +93,6 @@ You can preview the production build with `npm run preview`.
 43. [ ] move selected items in tandem
 44. [ ] where possible (all items selected have the same style), show currently selected style 
 45. [ ] todo: possibility to add / select custom colors
+46. [ ] todo: association label resize width on content change
+47. [ ] class, also change divider stroke color
+48. [ ] class, separate color for title and body
