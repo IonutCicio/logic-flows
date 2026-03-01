@@ -1,6 +1,7 @@
 <script lang="ts">
     import { EditorMode, graph, paper } from "$lib/utils";
     import * as joint from "@joint/core";
+    import { ClassResizeTool } from "../JointJS/ClassResizeTool";
 
     let {
         selectedCellViews = $bindable([]),
@@ -24,17 +25,61 @@
     let previousSelectedCellViews: joint.dia.CellView[] = [];
 
     $effect(() => {
-        graph.startBatch("update");
+        // graph.startBatch("update");
         for (const cellView of previousSelectedCellViews) {
-            cellView.hideTools();
+            cellView.removeTools();
         }
 
         previousSelectedCellViews = selectedCellViews;
 
         for (const cellView of selectedCellViews) {
-            cellView.showTools();
+            if (selectedCellViews.length > 1) {
+                cellView.addTools(
+                    new joint.dia.ToolsView({
+                        tools: [
+                            cellView.model instanceof joint.dia.Element
+                                ? new joint.elementTools.Boundary()
+                                : new joint.linkTools.Boundary(),
+                        ],
+                    }),
+                );
+
+                continue;
+            }
+
+            if (cellView.model instanceof joint.dia.Link) {
+                cellView.addTools(
+                    new joint.dia.ToolsView({
+                        tools: [
+                            new joint.linkTools.Vertices({
+                                redundancyRemoval: true,
+                                vertexAdding: true,
+                                snapRadius: 10,
+                                scale: 1,
+                            }),
+                            new joint.linkTools.Remove(),
+                            new joint.linkTools.Boundary(),
+                            new joint.linkTools.Segments(),
+                            new joint.linkTools.SourceArrowhead(),
+                            new joint.linkTools.TargetArrowhead(),
+                        ],
+                    }),
+                );
+            }
+
+            if (cellView.model instanceof joint.dia.Element) {
+                cellView.addTools(
+                    new joint.dia.ToolsView({
+                        tools: [
+                            new joint.elementTools.Boundary(),
+                            new joint.elementTools.Remove(),
+                            new ClassResizeTool({ selector: "body" }),
+                        ],
+                    }),
+                );
+            }
         }
-        graph.stopBatch("update");
+        // graph.stopBatch("update");
     });
 
     paper.on(
@@ -79,8 +124,21 @@
         }
 
         selectedCellViews = paper
-            .findCellViewsInArea(selectionRectangle.getBBox(), { strict: true })
+            .findCellViewsInArea(selectionRectangle.getBBox())
             .filter((cellView) => cellView.model != selectionRectangle);
         selectionRectangle.remove();
     });
 </script>
+
+<!-- // import { JointJSClass } from "../JointJS/JointJSClass"; -->
+<!-- // import { JointJSNote } from "../JointJS/JointJSNote"; -->
+<!-- // for (const cell of graph.getCells()) { -->
+<!-- //     initializeTools(cell); -->
+<!-- // } -->
+<!-- // graph.on("add", initializeTools); -->
+<!---->
+<!-- // function initializeTools(cell: any) { -->
+<!-- //     // const cellView = paper.findViewByModel(cell); -->
+<!-- //     // cellView.hideTools(); -->
+<!-- // } -->
+<!---->

@@ -24,18 +24,18 @@
         operations = component.get("operations");
     });
 
-    $effect(() => {
-        component.set("name", name);
-    });
+    // $effect(() => {
+    //     component.set("name", name);
+    // });
 
-    $effect(() => {
-        component.set("attributes", attributes);
-        component.update();
-    });
+    // $effect(() => {
+    //     component.set("attributes", attributes);
+    //     component.update();
+    // });
 
-    $effect(() => {
-        component.set("operations", operations);
-    });
+    // $effect(() => {
+    //     component.set("operations", operations);
+    // });
 </script>
 
 <div class="flex flex-col align-middle gap-2">
@@ -86,6 +86,7 @@
                         value={attribute.name}
                         oninput={() => {
                             attributes[index].name = this.value;
+                            component.set("attributes", attributes);
                         }}
                     />
                     :
@@ -95,6 +96,7 @@
                         value={attribute.type}
                         oninput={() => {
                             attributes[index].type = this.value;
+                            component.set("attributes", attributes);
                         }}
                     />
 
@@ -106,6 +108,7 @@
                         value={attribute.multiplicityLower}
                         oninput={() => {
                             attribute.multiplicityLower = this.value;
+                            component.set("attributes", attributes);
                         }}
                     />
                     ..
@@ -115,6 +118,7 @@
                         value={attribute.multiplicityUpper}
                         oninput={() => {
                             attribute.multiplicityUpper = this.value;
+                            component.set("attributes", attributes);
                         }}
                     />
                     ]
@@ -124,6 +128,7 @@
                         checked={attribute.identifierEnabled}
                         oninput={() => {
                             attributes[index].identifierEnabled = this.checked;
+                            component.set("attributes", attributes);
                         }}
                     />
 
@@ -137,6 +142,7 @@
                         disabled={!attribute.identifierEnabled}
                         oninput={() => {
                             attribute.identifierNumber = this.value;
+                            component.set("attributes", attributes);
                         }}
                     />
 
@@ -163,6 +169,7 @@
                             class="text-red-600"
                             onclick={() => {
                                 attributes.splice(index, 1);
+                                component.set("attributes", attributes);
                             }}
                         >
                             <X size={16} />

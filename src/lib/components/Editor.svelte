@@ -11,14 +11,12 @@
     import { JointJSClass } from "./JointJS/JointJSClass";
     import PropertyInspector from "$lib/components/view/PropertyInspector.svelte";
     import Toolbar from "./view/Toolbar.svelte";
-    import { ClassResizeTool } from "./JointJS/ClassResizeTool";
     import { JointJSNote } from "./JointJS/JointJSNote";
     import { JointJSAssociation } from "./JointJS/JointJSAssociation";
     import { JointJSGeneralization } from "./JointJS/JointJSGeneralization";
     import Selection from "./view/Selection.svelte";
     import Panning from "./view/Panning.svelte";
-
-    let selectedCellViews: joint.dia.CellView[] = $state([]);
+    import ClassInspector from "./view/ClassInspector.svelte";
 
     let editorMode: EditorMode = $state(EditorMode.Panning);
     let copiedViews: joint.dia.CellView[] = [];
@@ -26,49 +24,11 @@
     let mousePointToPaper: joint.g.Point = new joint.g.Point(0, 0);
     let paperElement: HTMLElement;
 
-    function initializeTools(cell: any) {
-        const cellView = paper.findViewByModel(cell);
-
-        if (cell.isLink()) {
-            cellView.addTools(
-                new joint.dia.ToolsView({
-                    tools: [
-                        new joint.linkTools.Vertices({
-                            redundancyRemoval: true,
-                            vertexAdding: true,
-                            snapRadius: 10,
-                            scale: 1,
-                        }),
-                        new joint.linkTools.Remove(),
-                        new joint.linkTools.Boundary(),
-                        new joint.linkTools.Segments(),
-                        new joint.linkTools.SourceArrowhead({}),
-                        new joint.linkTools.TargetArrowhead(),
-                    ],
-                }),
-            );
-        }
-
-        if (cell instanceof JointJSClass || cell instanceof JointJSNote) {
-            cellView.addTools(
-                new joint.dia.ToolsView({
-                    tools: [
-                        new joint.elementTools.Boundary(),
-                        new joint.elementTools.Remove(),
-                        new ClassResizeTool({
-                            selector: "body",
-                        }),
-                    ],
-                }),
-            );
-        }
-
-        cellView.hideTools();
-    }
+    let selectedCellViews: joint.dia.CellView[] = $state([]);
+    let inspectedCellView: joint.dia.CellView | null = $state(null);
 
     $effect(() => {
         paper.setElement(paperElement);
-
         paper.setDimensions(
             paperElement.clientWidth,
             paperElement.clientHeight,
@@ -78,12 +38,7 @@
         const diagramJSON = localStorage.getItem("diagram");
         if (diagramJSON) {
             graph.fromJSON(JSON.parse(diagramJSON));
-            for (const cell of graph.getCells()) {
-                initializeTools(cell);
-            }
         }
-
-        graph.on("add", initializeTools);
     });
 
     function handleKeydown(event: KeyboardEvent) {
@@ -182,13 +137,6 @@
         }
     }
 
-    paper.options.interactive = function () {
-        return {
-            labelMove: true,
-            linkMove: true,
-        };
-    };
-
     paper.options.defaultLink = function (
         _cellView: joint.dia.CellView,
         _magnet: SVGElement,
@@ -253,9 +201,12 @@
         "cell:pointerdown",
         function (cellView: joint.dia.CellView, _event: joint.dia.Event) {
             selectedCellViews = [cellView];
-            editorMode = EditorMode.Panning;
         },
     );
+
+    paper.on("cell:pointerdblclick", function (cellView: joint.dia.CellView) {
+        inspectedCellView = cellView;
+    });
 
     paper.on(
         "blank:pointerdown",
@@ -282,25 +233,26 @@
         },
     );
 
-    paper.on(
-        "cell:pointermove",
-        function (cellView: joint.dia.CellView, event: joint.dia.Event) {
-            if (
-                selectedCellViews.some(
-                    (selectedCellView) => selectedCellView === cellView,
-                )
-            ) {
-                // TODO: move all
-                return;
-            }
-
-            selectedCellViews = [cellView];
-        },
-    );
+    // paper.on(
+    //     "cell:pointermove",
+    //     function (cellView: joint.dia.CellView, event: joint.dia.Event) {
+    //         if (
+    //             selectedCellViews.some(
+    //                 (selectedCellView) => selectedCellView === cellView,
+    //             )
+    //         ) {
+    //             // TODO: move all
+    //             return;
+    //         }
+    //
+    //         selectedCellViews = [cellView];
+    //     },
+    // );
 </script>
 
 <svelte:window
-    onresize={() => paper.setDimensions(window.innerWidth, window.innerHeight)}
+    onresize={() =>
+        paper.setDimensions(window.innerWidth, paperElement.clientHeight)}
     onkeydown={handleKeydown}
     onpointermove={(event: MouseEvent) => {
         mousePointToPaper = paper.clientToLocalPoint(
@@ -318,13 +270,33 @@
 
     <div class="relative w-full h-full">
         <div id="paper" class="w-full h-full" bind:this={paperElement}></div>
-        <div
-            class="absolute top-0 left-0 w-min h-full bg-white border-r border-gray-300"
-        >
-            <PropertyInspector cellViews={selectedCellViews} />
-        </div>
+        <!-- <div -->
+        <!--     class="absolute top-0 left-0 w-min h-full bg-white border-r border-gray-300" -->
+        <!-- > -->
+        <!--     <PropertyInspector cellViews={selectedCellViews} /> -->
+        <!-- </div> -->
     </div>
 </div>
+
+<!-- {#if inspectedCellView !== null} -->
+<!--     <!-- TODO: on Esc close --> -->
+<!--     <div -->
+<!--         class="absolute top-0 left-0 w-full h-full bg-black/20 grid place-items-center" -->
+<!--         onclick={(event: Event) => { -->
+<!--             event.stopPropagation(); -->
+<!--             inspectedCellView = null; -->
+<!--         }} -->
+<!--         onkeydown={() => {}} -->
+<!--         role="dialog" -->
+<!--         tabindex="0" -->
+<!--     > -->
+<!--         <div class="bg-white rounded-md p-4"> -->
+<!--             {#if inspectedCellView.model instanceof JointJSClass} -->
+<!--                 <ClassInspector component={inspectedCellView.model} /> -->
+<!--             {/if} -->
+<!--         </div> -->
+<!--     </div> -->
+<!-- {/if} -->
 
 <!-- // graph.getElements().forEach((cell) => { -->
 <!-- //     if (cell instanceof JointJSClass) { -->
@@ -336,6 +308,6 @@
 <!-- //     _magnet: SVGElement, -->
 <!-- // ) { -->
 <!-- //     return ( -->
-<!-- //         editorMode !== EditorMode.Class && editorMode !== EditorMode.Note -->
+<!-- //         editorMode !== oditorMode.Class && editorMode !== EditorMode.Note -->
 <!-- //     ); -->
 <!-- // }; -->

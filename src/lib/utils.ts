@@ -6,15 +6,6 @@ import { conf } from ".";
 import { JointJSNote } from "./components/JointJS/JointJSNote";
 import { JointJSGeneralization } from "./components/JointJS/JointJSGeneralization";
 
-export enum EditorMode {
-    Panning,
-    Selection,
-    Class,
-    Generalization,
-    Note
-}
-
-
 const cellNamespace = {
     ...joint.shapes,
     custom: {
@@ -31,20 +22,20 @@ export const graph: joint.dia.Graph = new joint.dia.Graph(
 );
 
 
-graph.on("add remove change", function(cell: any) {
-    if (
-        !(
-            cell instanceof JointJSClass ||
-            cell instanceof JointJSAssociation ||
-            cell instanceof JointJSGeneralization ||
-            cell instanceof JointJSNote
-        )
-    ) {
-        return;
-    }
-
-    localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
-});
+// graph.on("add remove change", function(cell: any) {
+//     if (
+//         !(
+//             cell instanceof JointJSClass ||
+//             cell instanceof JointJSAssociation ||
+//             cell instanceof JointJSGeneralization ||
+//             cell instanceof JointJSNote
+//         )
+//     ) {
+//         return;
+//     }
+//
+//     localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
+// });
 
 export const paper: joint.dia.Paper = new joint.dia.Paper({
     model: graph,
@@ -56,7 +47,11 @@ export const paper: joint.dia.Paper = new joint.dia.Paper({
     },
     defaultRouter: {
         name: "manhattan",
-        args: {},
+        // args: {},
+    },
+    interactive: {
+        labelMove: true,
+        linkMove: true,
     },
     snapLinks: true,
     defaultConnectionPoint: { name: 'anchor' },
@@ -64,6 +59,14 @@ export const paper: joint.dia.Paper = new joint.dia.Paper({
     snapLabels: true,
     linkPinning: false,
 });
+
+export enum EditorMode {
+    Panning,
+    Selection,
+    Class,
+    Generalization,
+    Note
+}
 
 export function darkenHSL(hslString: string, amount = 20): string {
     // hsl(h, s%, l%)
@@ -101,7 +104,7 @@ export function lengthToGridEven(length: number): number {
 }
 
 
-export function textWidth(text: string) {
+export function textLength(text: string) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 

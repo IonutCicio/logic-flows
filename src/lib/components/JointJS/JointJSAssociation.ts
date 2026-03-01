@@ -2,12 +2,7 @@ import type { IUMLLink } from "$lib/types/uml";
 import { conf } from "$lib";
 import { get } from 'svelte/store';
 import * as joint from "@joint/core";
-
-const RECT = {
-    fill: 'white',
-    stroke: 'white',
-    strokeWidth: get(conf).gridSize / 2
-}
+import { lengthToGridEven, textLength } from "$lib/utils";
 
 export const JointJSAssociation = joint.dia.Link.define(
     'custom.JointJSAssociation',
@@ -19,22 +14,25 @@ export const JointJSAssociation = joint.dia.Link.define(
         attrs: {
             line: {
                 connection: true,
-                stroke: 'hsl(0, 0%, 0%)',
+                stroke: 'black',
                 strokeWidth: 2,
                 fill: 'none'
             },
             wrapper: {
                 connection: true,
-                strokeWidth: 10
+                strokeWidth: 20
             }
         },
         labels: [
             // 0: Source Multiplicity
             {
-                position: get(conf).gridSize * 1.5,
                 attrs: {
                     text: { 'font-size': get(conf).fontSize },
-                    rect: RECT,
+                    rect: {
+                        fill: 'white',
+                        stroke: 'white',
+                        strokeWidth: get(conf).gridSize / 3
+                    },
                 }
             },
             // 1: Association Name
@@ -45,16 +43,21 @@ export const JointJSAssociation = joint.dia.Link.define(
                         'font-size': get(conf).fontSize,
                         'font-style': 'italic'
                     },
-                    rect: RECT,
-                    wdith: get(conf).gridSize * 5
+                    rect: {
+                        fill: 'white',
+                        stroke: 'white',
+                    }
                 }
             },
             // 2: Target Multiplicity
             {
-                position: -get(conf).gridSize * 1.5,
                 attrs: {
                     text: { 'font-size': get(conf).fontSize },
-                    rect: RECT,
+                    rect: {
+                        fill: 'white',
+                        stroke: 'white',
+                        strokeWidth: get(conf).gridSize / 3
+                    },
                 }
             }
         ]
@@ -77,18 +80,67 @@ export const JointJSAssociation = joint.dia.Link.define(
                     'fill': 'none',
                     'pointer-events': 'none'
                 }
-            }
+            },
         ],
 
         initialize: function(this: IUMLLink) {
             joint.dia.Link.prototype.initialize.apply(this, arguments as any);
-            this.on('change:sourceMultiplicity change:name change:targetMultiplicity', this.update);
+            // this.on('change:sourceMultiplicity change:name change:targetMultiplicity all', this.update);
+            this.on('all', this.update);
             this.update();
         },
 
         update: function(this: IUMLLink) {
-            this.label(0, { attrs: { text: { text: this.get('sourceMultiplicity') || '' } } });
-            this.label(1, { attrs: { text: { text: this.get('name') || '' } } });
-            this.label(2, { attrs: { text: { text: this.get('targetMultiplicity') || '' } } });
+            let sourcePosition = get(conf).gridSize * 1.5;
+            if (
+                this.get("source")?.port?.includes("port-b-") ||
+                this.get("source")?.port?.includes("port-t-")
+            ) {
+                sourcePosition = get(conf).gridSize * 1
+            }
+
+            this.label(0, {
+                attrs: {
+                    text: {
+                        text: this.get('sourceMultiplicity') || '',
+                    },
+                    rect: {
+                        width: lengthToGridEven(textLength(this.get('sourceMultiplicity') || ''))
+                    }
+                },
+                position: sourcePosition * 3,
+            });
+            this.label(1, {
+                attrs: {
+                    text: {
+                        text: this.get('name') || ''
+                    },
+                    rect: {
+                        x: -lengthToGridEven(textLength(this.get('name') || '')) / 2,
+                        width: lengthToGridEven(textLength(this.get('name') || ''))
+                    }
+                }
+            });
+
+            let targetPosition = get(conf).gridSize * 1.5;
+            if (
+                this.get("target")?.port?.includes("port-b-") ||
+                this.get("target")?.port?.includes("port-t-")
+            ) {
+                targetPosition = get(conf).gridSize * 1
+            }
+
+            this.label(2, {
+                attrs: {
+                    text: {
+                        text: this.get('targetMultiplicity') || ''
+                    },
+                    rect: {
+                        width: lengthToGridEven(textLength(this.get('targetMultiplicity') || ''))
+                    }
+                },
+                position: -1 * targetPosition * 3
+            });
         }
-    });
+    }
+);

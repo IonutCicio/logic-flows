@@ -1,14 +1,17 @@
 <script lang="ts">
-import * as joint from "@joint/core";
+    import * as joint from "@joint/core";
 
-const { component }: { component: joint.dia.Link } = $props();
-let name = $derived<string>(component.get("name") || "");
-let sourceMultiplicity = $derived<string>(
-	component.get("sourceMoltiplicity") || "0..*",
-);
-let targetMultiplicity = $derived<string>(
-	component.get("targetMultiplicity") || "0..*",
-);
+    const { component }: { component: joint.dia.Link } = $props();
+    let name = $state<string>("");
+    $effect(() => {
+        name = component.get("name") || "";
+    });
+    let sourceMultiplicity = $derived<string>(
+        component.get("sourceMoltiplicity") || "0..*",
+    );
+    let targetMultiplicity = $derived<string>(
+        component.get("targetMultiplicity") || "0..*",
+    );
 </script>
 
 <div class="align-middle flex flex-col">
