@@ -58,7 +58,7 @@ You can preview the production build with `npm run preview`.
     7. [x] Remove grid and stuff when exporting JSON (and export just the graph components)
     8. [ ] Add support for exporting only selected items
 2. [ ] UI
-    1. [ ] Snap class dimensions to grid
+    1. [x] Snap class dimensions to grid
         - [x] The `width` and `height` are multiples of `conf.gridSize * 2`
         - [x] The `width` is at least the length necessary to show the attributes / operations and at most the `width` choosen by the user (and snapped) 
         - [x] The `width` and `height` are the least length necessary to keep all links on

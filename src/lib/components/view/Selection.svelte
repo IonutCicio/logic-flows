@@ -25,7 +25,14 @@
     let previousSelectedCellViews: joint.dia.CellView[] = [];
 
     $effect(() => {
-        // graph.startBatch("update");
+        if (
+            previousSelectedCellViews.length == 1 &&
+            selectedCellViews.length == 1 &&
+            previousSelectedCellViews[0] == selectedCellViews[0]
+        ) {
+            return;
+        }
+
         for (const cellView of previousSelectedCellViews) {
             cellView.removeTools();
         }
@@ -79,7 +86,6 @@
                 );
             }
         }
-        // graph.stopBatch("update");
     });
 
     paper.on(

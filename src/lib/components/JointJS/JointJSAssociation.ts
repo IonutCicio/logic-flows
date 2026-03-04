@@ -85,8 +85,8 @@ export const JointJSAssociation = joint.dia.Link.define(
 
         initialize: function(this: IUMLLink) {
             joint.dia.Link.prototype.initialize.apply(this, arguments as any);
-            // this.on('change:sourceMultiplicity change:name change:targetMultiplicity all', this.update);
-            this.on('all', this.update);
+            // this.on('change:sourceMultiplicity change:name change:targetMultiplicity', this.update);
+            // this.on('all', this.update);
             this.update();
         },
 
@@ -105,7 +105,7 @@ export const JointJSAssociation = joint.dia.Link.define(
                         text: this.get('sourceMultiplicity') || '',
                     },
                     rect: {
-                        width: lengthToGridEven(textLength(this.get('sourceMultiplicity') || ''))
+                        // width: lengthToGridEven(textLength(this.get('sourceMultiplicity') || ''))
                     }
                 },
                 position: sourcePosition * 3,
@@ -116,8 +116,8 @@ export const JointJSAssociation = joint.dia.Link.define(
                         text: this.get('name') || ''
                     },
                     rect: {
-                        x: -lengthToGridEven(textLength(this.get('name') || '')) / 2,
-                        width: lengthToGridEven(textLength(this.get('name') || ''))
+                        // x: -lengthToGridEven(textLength(this.get('name') || '')) / 2,
+                        // width: lengthToGridEven(textLength(this.get('name') || ''))
                     }
                 }
             });
@@ -136,7 +136,7 @@ export const JointJSAssociation = joint.dia.Link.define(
                         text: this.get('targetMultiplicity') || ''
                     },
                     rect: {
-                        width: lengthToGridEven(textLength(this.get('targetMultiplicity') || ''))
+                        // width: lengthToGridEven(textLength(this.get('targetMultiplicity') || ''))
                     }
                 },
                 position: -1 * targetPosition * 3
