@@ -7,6 +7,7 @@
         exportJSON,
         exportSVG,
         importJSON,
+        clickOutside,
     } from "$lib/utils";
     import { JointJSClass } from "./JointJS/JointJSClass";
     import PropertyInspector from "$lib/components/view/PropertyInspector.svelte";
@@ -285,7 +286,7 @@
         role="dialog"
         tabindex="0"
     >
-        <div class="bg-white rounded-md p-4">
+        <div class="bg-white rounded-md p-4" use:clickOutside={(e) => inspectedCellView = null}>
             {#if inspectedCellView.model instanceof JointJSClass}
                 <ClassInspector component={inspectedCellView.model} />
             {/if}
