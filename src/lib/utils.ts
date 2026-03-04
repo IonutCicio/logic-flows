@@ -103,22 +103,18 @@ export function lengthToGridEven(length: number): number {
     return Math.ceil(length / (get(conf).gridSize * 2)) * get(conf).gridSize * 2
 }
 
+const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+textElement.setAttribute('font-size', `${get(conf).fontSize}px`);
+// TODO: if this is called before Cascadia Code font is loaded, it chooses some other font, which is smaller,
+// TODO: check if this gives problems with loading
+textElement.setAttribute('font-family', 'Cascadia Code');
+svg.appendChild(textElement);
+document.body.appendChild(svg);
 
 export function textLength(text: string) {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-
-    textElement.setAttribute('font-size', `${get(conf).fontSize}px`);
-    // TODO: if this is called before Cascadia Code font is loaded, it chooses some other font, which is smaller,
-    textElement.setAttribute('font-family', 'Cascadia Code');
     textElement.textContent = text;
-
-    svg.appendChild(textElement);
-    document.body.appendChild(svg);
-    const bbox = textElement.getBBox();
-
-    document.body.removeChild(svg);
-    return bbox.width;
+    return textElement.getBBox().width;
 }
 
 export function exportSVG() {
@@ -259,7 +255,7 @@ function outside(
 
     return {
         destroy() {
-        document.removeEventListener(listener, handleClick);
+            document.removeEventListener(listener, handleClick);
         },
     };
 }
