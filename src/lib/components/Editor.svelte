@@ -98,6 +98,7 @@
 
         if (event.key == "Escape") {
             selectedCellViews = [];
+            inspectedCellView = null;
         }
 
         if (
@@ -278,25 +279,19 @@
     </div>
 </div>
 
-<!-- {#if inspectedCellView !== null} -->
-<!--     <!-- TODO: on Esc close --> -->
-<!--     <div -->
-<!--         class="absolute top-0 left-0 w-full h-full bg-black/20 grid place-items-center" -->
-<!--         onclick={(event: Event) => { -->
-<!--             event.stopPropagation(); -->
-<!--             inspectedCellView = null; -->
-<!--         }} -->
-<!--         onkeydown={() => {}} -->
-<!--         role="dialog" -->
-<!--         tabindex="0" -->
-<!--     > -->
-<!--         <div class="bg-white rounded-md p-4"> -->
-<!--             {#if inspectedCellView.model instanceof JointJSClass} -->
-<!--                 <ClassInspector component={inspectedCellView.model} /> -->
-<!--             {/if} -->
-<!--         </div> -->
-<!--     </div> -->
-<!-- {/if} -->
+{#if inspectedCellView !== null}
+    <div
+        class="absolute top-0 left-0 w-full h-full bg-black/20 grid place-items-center"
+        role="dialog"
+        tabindex="0"
+    >
+        <div class="bg-white rounded-md p-4">
+            {#if inspectedCellView.model instanceof JointJSClass}
+                <ClassInspector component={inspectedCellView.model} />
+            {/if}
+        </div>
+    </div>
+{/if}
 
 <!-- // graph.getElements().forEach((cell) => { -->
 <!-- //     if (cell instanceof JointJSClass) { -->

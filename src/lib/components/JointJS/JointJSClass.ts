@@ -83,8 +83,8 @@ export const JointJSClass = joint.dia.Element.define(
 
         initialize: function(this: IUMLClass) {
             joint.dia.Element.prototype.initialize.apply(this, arguments as any);
-            // this.on("change:size change:attrs change:name change:attributes change:operations", this.update);
-            this.on("all", this.update);
+            this.on("change:size change:attrs change:name change:attributes change:operations", this.update);
+            // this.on("all", this.update);
             this.update();
         },
 

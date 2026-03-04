@@ -8,34 +8,50 @@
 
     const { component }: { component: IUMLClass } = $props();
 
-    let name: string = $state("");
-    let attributes = $state<UMLAttribute[]>([]);
-    let operations: UMLOperation[] = $state([]);
+    let name = $state(component.get("name") || "");
+    let attributes = $state<UMLAttribute[]>(component.get("attributes") || []);
+    let operations = $state<UMLOperation[]>(component.get("operations") || []);
 
-    $effect(() => {
-        name = component.get("name");
-    });
+    function swapAttributes(indexA: number, indexB: number) {
+        if (
+            indexA < 0 ||
+            indexB < 0 ||
+            indexA >= attributes.length ||
+            indexB >= attributes.length ||
+            indexA === indexB
+        ) {
+            return;
+        }
 
-    $effect(() => {
-        attributes = component.get("attributes");
-    });
+        [attributes[indexA], attributes[indexB]] = [attributes[indexB], attributes[indexA]];
 
-    $effect(() => {
-        operations = component.get("operations");
-    });
+        attributes = [...attributes];
+    }
 
     // $effect(() => {
-    //     component.set("name", name);
+    //     name = component.get("name");
     // });
 
     // $effect(() => {
-    //     component.set("attributes", attributes);
-    //     component.update();
+    //     attributes = component.get("attributes");
     // });
 
     // $effect(() => {
-    //     component.set("operations", operations);
+    //     operations = component.get("operations");
     // });
+
+    $effect(() => {
+        component.set("name", name);
+    });
+
+    $effect(() => {
+        component.set("attributes", attributes);
+        component.update();
+    });
+
+    $effect(() => {
+        component.set("operations", operations);
+    });
 </script>
 
 <div class="flex flex-col align-middle gap-2">
@@ -83,21 +99,13 @@
                     <input
                         class="w-30"
                         type="text"
-                        value={attribute.name}
-                        oninput={() => {
-                            attributes[index].name = this.value;
-                            component.set("attributes", attributes);
-                        }}
+                        bind:value={attribute.name}
                     />
                     :
                     <input
                         class="w-20"
                         type="text"
-                        value={attribute.type}
-                        oninput={() => {
-                            attributes[index].type = this.value;
-                            component.set("attributes", attributes);
-                        }}
+                        bind:value={attribute.type}
                     />
 
                     [
@@ -105,52 +113,34 @@
                         class="w-10"
                         type="number"
                         min="0"
-                        value={attribute.multiplicityLower}
-                        oninput={() => {
-                            attribute.multiplicityLower = this.value;
-                            component.set("attributes", attributes);
-                        }}
+                        bind:value={attribute.multiplicityLower}
                     />
                     ..
                     <input
                         class="w-7"
                         type="text"
-                        value={attribute.multiplicityUpper}
-                        oninput={() => {
-                            attribute.multiplicityUpper = this.value;
-                            component.set("attributes", attributes);
-                        }}
+                        bind:value={attribute.multiplicityUpper}
                     />
                     ]
 
                     <input
                         type="checkbox"
-                        checked={attribute.identifierEnabled}
-                        oninput={() => {
-                            attributes[index].identifierEnabled = this.checked;
-                            component.set("attributes", attributes);
-                        }}
+                        bind:checked={attribute.identifierEnabled}
                     />
 
                     <input
                         class="w-10"
                         type="number"
                         min="1"
-                        value={attribute.identifierEnabled
-                            ? attribute.identifierNumber
-                            : ""}
+                        bind:value={attribute.identifierNumber}
                         disabled={!attribute.identifierEnabled}
-                        oninput={() => {
-                            attribute.identifierNumber = this.value;
-                            component.set("attributes", attributes);
-                        }}
                     />
 
                     <div class="flex gap-2">
                         <button
                             disabled={index === 0}
                             onclick={() => {
-                                // attributes.swap(name, entries[index - 1][0]);
+                                swapAttributes(index, index-1);
                             }}
                         >
                             <ArrowUp size={16} />
@@ -159,7 +149,7 @@
                         <button
                             disabled={index === attributes.length - 1}
                             onclick={() => {
-                                // attributes.swap(name, entries[index + 1][0]);
+                                swapAttributes(index, index+1)
                             }}
                         >
                             <ArrowDown size={16} />
