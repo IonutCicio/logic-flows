@@ -18,6 +18,7 @@
     import Selection from "./view/Selection.svelte";
     import Panning from "./view/Panning.svelte";
     import ClassInspector from "./view/ClassInspector.svelte";
+    import AssociationInspector from "./view/AssociationInspector.svelte";
 
     let editorMode: EditorMode = $state(EditorMode.Panning);
     let copiedViews: joint.dia.CellView[] = [];
@@ -272,11 +273,6 @@
 
     <div class="relative w-full h-full">
         <div id="paper" class="w-full h-full" bind:this={paperElement}></div>
-        <!-- <div -->
-        <!--     class="absolute top-0 left-0 w-min h-full bg-white border-r border-gray-300" -->
-        <!-- > -->
-        <!--     <PropertyInspector cellViews={selectedCellViews} /> -->
-        <!-- </div> -->
     </div>
 </div>
 
@@ -286,13 +282,24 @@
         role="dialog"
         tabindex="0"
     >
-        <div class="bg-white rounded-md p-4" use:clickOutside={(e) => inspectedCellView = null}>
+        <div
+            class="bg-white rounded-md p-4"
+            use:clickOutside={(e) => (inspectedCellView = null)}
+        >
             {#if inspectedCellView.model instanceof JointJSClass}
                 <ClassInspector component={inspectedCellView.model} />
+            {:else if inspectedCellView.model instanceof JointJSAssociation}
+                <AssociationInspector component={inspectedCellView.model} />
             {/if}
         </div>
     </div>
 {/if}
+
+<!-- <div -->
+<!--     class="absolute top-0 left-0 w-min h-full bg-white border-r border-gray-300" -->
+<!-- > -->
+<!--     <PropertyInspector cellViews={selectedCellViews} /> -->
+<!-- </div> -->
 
 <!-- // graph.getElements().forEach((cell) => { -->
 <!-- //     if (cell instanceof JointJSClass) { -->

@@ -130,21 +130,10 @@
         }
 
         selectedCellViews = paper
-            .findCellViewsInArea(selectionRectangle.getBBox())
+            .findCellViewsInArea(selectionRectangle.getBBox(), {
+                strict: false,
+            })
             .filter((cellView) => cellView.model != selectionRectangle);
         selectionRectangle.remove();
     });
 </script>
-
-<!-- // import { JointJSClass } from "../JointJS/JointJSClass"; -->
-<!-- // import { JointJSNote } from "../JointJS/JointJSNote"; -->
-<!-- // for (const cell of graph.getCells()) { -->
-<!-- //     initializeTools(cell); -->
-<!-- // } -->
-<!-- // graph.on("add", initializeTools); -->
-<!---->
-<!-- // function initializeTools(cell: any) { -->
-<!-- //     // const cellView = paper.findViewByModel(cell); -->
-<!-- //     // cellView.hideTools(); -->
-<!-- // } -->
-<!---->

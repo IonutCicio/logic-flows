@@ -86,7 +86,7 @@ export const JointJSAssociation = joint.dia.Link.define(
         initialize: function(this: IUMLLink) {
             joint.dia.Link.prototype.initialize.apply(this, arguments as any);
             // this.on('change:sourceMultiplicity change:name change:targetMultiplicity', this.update);
-            // this.on('all', this.update);
+            this.on('all', this.update);
             this.update();
         },
 
@@ -96,7 +96,7 @@ export const JointJSAssociation = joint.dia.Link.define(
                 this.get("source")?.port?.includes("port-b-") ||
                 this.get("source")?.port?.includes("port-t-")
             ) {
-                sourcePosition = get(conf).gridSize * 1
+                sourcePosition = get(conf).gridSize;
             }
 
             this.label(0, {
@@ -105,10 +105,10 @@ export const JointJSAssociation = joint.dia.Link.define(
                         text: this.get('sourceMultiplicity') || '',
                     },
                     rect: {
-                        // width: lengthToGridEven(textLength(this.get('sourceMultiplicity') || ''))
+                        width: lengthToGridEven(textLength(this.get('sourceMultiplicity') || ''))
                     }
                 },
-                position: sourcePosition * 3,
+                position: sourcePosition,
             });
             this.label(1, {
                 attrs: {
@@ -116,8 +116,8 @@ export const JointJSAssociation = joint.dia.Link.define(
                         text: this.get('name') || ''
                     },
                     rect: {
-                        // x: -lengthToGridEven(textLength(this.get('name') || '')) / 2,
-                        // width: lengthToGridEven(textLength(this.get('name') || ''))
+                        x: -lengthToGridEven(textLength(this.get('name') || '')) / 2,
+                        width: lengthToGridEven(textLength(this.get('name') || ''))
                     }
                 }
             });
@@ -127,7 +127,7 @@ export const JointJSAssociation = joint.dia.Link.define(
                 this.get("target")?.port?.includes("port-b-") ||
                 this.get("target")?.port?.includes("port-t-")
             ) {
-                targetPosition = get(conf).gridSize * 1
+                targetPosition = get(conf).gridSize;
             }
 
             this.label(2, {
@@ -136,10 +136,10 @@ export const JointJSAssociation = joint.dia.Link.define(
                         text: this.get('targetMultiplicity') || ''
                     },
                     rect: {
-                        // width: lengthToGridEven(textLength(this.get('targetMultiplicity') || ''))
+                        width: lengthToGridEven(textLength(this.get('targetMultiplicity') || ''))
                     }
                 },
-                position: -1 * targetPosition * 3
+                position: -1 * targetPosition
             });
         }
     }

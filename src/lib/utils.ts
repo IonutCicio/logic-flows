@@ -22,20 +22,20 @@ export const graph: joint.dia.Graph = new joint.dia.Graph(
 );
 
 
-// graph.on("add remove change", function(cell: any) {
-//     if (
-//         !(
-//             cell instanceof JointJSClass ||
-//             cell instanceof JointJSAssociation ||
-//             cell instanceof JointJSGeneralization ||
-//             cell instanceof JointJSNote
-//         )
-//     ) {
-//         return;
-//     }
-//
-//     localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
-// });
+graph.on("add remove change", function(cell: any) {
+    if (
+        !(
+            cell instanceof JointJSClass ||
+            cell instanceof JointJSAssociation ||
+            cell instanceof JointJSGeneralization ||
+            cell instanceof JointJSNote
+        )
+    ) {
+        return;
+    }
+
+    localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
+});
 
 export const paper: joint.dia.Paper = new joint.dia.Paper({
     model: graph,
@@ -104,6 +104,7 @@ export function lengthToGridEven(length: number): number {
 }
 
 const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+// svg.setAttribute("style", "display: none;")
 const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 textElement.setAttribute('font-size', `${get(conf).fontSize}px`);
 // TODO: if this is called before Cascadia Code font is loaded, it chooses some other font, which is smaller,
