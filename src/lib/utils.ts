@@ -61,10 +61,24 @@ export const paper: joint.dia.Paper = new joint.dia.Paper({
 });
 
 export enum EditorMode {
+    // Paper
     Panning,
     Selection,
-    Class,
+
+    // UML Class Diagram
+    DashedLine, // dashed line for AssociationClass or Note
     Generalization,
+
+    // UML Class Diagram (extensional level)
+    Object,
+    Link,
+    InstanceOf, // dashed line with arrow and "<<instance>>" stereotype
+
+    // UML 
+    Actor,
+    UseCase,
+
+    // Extra
     Note
 }
 
@@ -104,13 +118,12 @@ export function lengthToGridEven(length: number): number {
 }
 
 const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-// svg.setAttribute("style", "display: none;")
 const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-textElement.setAttribute('font-size', `${get(conf).fontSize}px`);
-// TODO: if this is called before Cascadia Code font is loaded, it chooses some other font, which is smaller,
-// TODO: check if this gives problems with loading
-textElement.setAttribute('font-family', 'Cascadia Code');
 svg.appendChild(textElement);
+
+svg.setAttribute("style", "position: absolute; bottom: 0; left: 0; z-index: -100;")
+textElement.setAttribute("font-family", "Cascadia Code");
+textElement.setAttribute("font-size", `${get(conf).fontSize}px`);
 document.body.appendChild(svg);
 
 export function textLength(text: string) {
@@ -128,11 +141,11 @@ export function exportSVG() {
     svg.setAttribute('width', `${bbox.width}`);
     svg.setAttribute('height', `${bbox.height}`);
     svg.setAttribute('viewBox', `
-    ${bbox.x} 
-    ${bbox.y} 
-    ${bbox.width} 
-    ${bbox.height}
-`);
+        ${bbox.x} 
+        ${bbox.y} 
+        ${bbox.width} 
+        ${bbox.height}
+    `);
 
 
     svg.querySelector('.joint-grid-layer')?.remove();

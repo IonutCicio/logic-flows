@@ -15,6 +15,12 @@
         Image,
         Github,
         CircleQuestionMark,
+        SquareCenterlineDashedVertical,
+        SquareDashed,
+        Minus,
+        MoveUpRight,
+        Circle,
+        PersonStanding,
     } from "@lucide/svelte";
 
     let {
@@ -35,14 +41,39 @@
             mode: EditorMode.Selection,
         },
         {
-            icon: Rows2,
-            tooltip: "Class",
-            mode: EditorMode.Class,
+            icon: SquareCenterlineDashedVertical,
+            tooltip: "Association class line",
+            mode: EditorMode.DashedLine,
         },
         {
             icon: MoveDown,
             tooltip: "Generalization",
             mode: EditorMode.Generalization,
+        },
+        {
+            icon: SquareDashed,
+            tooltip: "Object",
+            mode: EditorMode.Object,
+        },
+        {
+            icon: Minus,
+            tooltip: "Link",
+            mode: EditorMode.Link,
+        },
+        {
+            icon: MoveUpRight,
+            tooltip: "<<instance>>",
+            mode: EditorMode.InstanceOf,
+        },
+        {
+            icon: PersonStanding,
+            tooltip: "Actor",
+            mode: EditorMode.Actor,
+        },
+        {
+            icon: Circle,
+            tooltip: "Use case",
+            mode: EditorMode.UseCase,
         },
         {
             icon: StickyNote,

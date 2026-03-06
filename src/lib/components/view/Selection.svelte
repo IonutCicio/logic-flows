@@ -109,6 +109,10 @@
         },
     );
 
+    // paper.on("blank:pointerdown", function () {
+    //     selectedCellViews = [];
+    // });
+
     paper.on(
         "blank:pointermove",
         function (_event: joint.dia.Event, x: number, y: number) {
@@ -135,5 +139,37 @@
             })
             .filter((cellView) => cellView.model != selectionRectangle);
         selectionRectangle.remove();
+    });
+
+    let selectionStartPosition = { x: 0, y: 0 };
+
+    paper.on("cell:pointerdown", function (cellView: joint.dia.CellView) {
+        selectionStartPosition = cellView.model.position();
+        if (selectedCellViews.includes(cellView)) {
+            return;
+        }
+        selectedCellViews = [cellView];
+    });
+
+    paper.on("cell:pointermove", function (cellView: joint.dia.CellView) {
+        const cellPosition = cellView.model.position();
+        const dx = cellPosition.x - selectionStartPosition.x;
+        const dy = cellPosition.y - selectionStartPosition.y;
+        selectionStartPosition = cellPosition;
+
+        for (const selectedCellView of selectedCellViews) {
+            if (
+                selectedCellView == cellView ||
+                !(selectedCellView.model instanceof joint.dia.Element)
+            ) {
+                continue;
+            }
+
+            const oldCellPosition = selectedCellView.model.position();
+            selectedCellView.model.position(
+                oldCellPosition.x + dx,
+                oldCellPosition.y + dy,
+            );
+        }
     });
 </script>

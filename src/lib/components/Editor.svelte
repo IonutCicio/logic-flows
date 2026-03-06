@@ -128,7 +128,7 @@
         }
 
         if (event.key === "3") {
-            editorMode = EditorMode.Class;
+            editorMode = EditorMode.DashedLine;
         }
 
         if (event.key === "4") {
@@ -136,6 +136,26 @@
         }
 
         if (event.key === "5") {
+            editorMode = EditorMode.Object;
+        }
+
+        if (event.key === "6") {
+            editorMode = EditorMode.Link;
+        }
+
+        if (event.key === "7") {
+            editorMode = EditorMode.InstanceOf;
+        }
+
+        if (event.key === "8") {
+            editorMode = EditorMode.Actor;
+        }
+
+        if (event.key === "9") {
+            editorMode = EditorMode.UseCase;
+        }
+
+        if (event.key === "0") {
             editorMode = EditorMode.Note;
         }
     }
@@ -144,8 +164,20 @@
         _cellView: joint.dia.CellView,
         _magnet: SVGElement,
     ) {
+        if (editorMode === EditorMode.DashedLine) {
+            // ...
+        }
+
         if (editorMode === EditorMode.Generalization) {
             return new JointJSGeneralization();
+        }
+
+        if (editorMode === EditorMode.Link) {
+            // ...
+        }
+
+        if (editorMode === EditorMode.InstanceOf) {
+            // ...
         }
 
         return new JointJSAssociation();
@@ -200,26 +232,37 @@
         );
     };
 
-    paper.on(
-        "cell:pointerdown",
-        function (cellView: joint.dia.CellView, _event: joint.dia.Event) {
-            selectedCellViews = [cellView];
-        },
-    );
-
     paper.on("cell:pointerdblclick", function (cellView: joint.dia.CellView) {
         inspectedCellView = cellView;
     });
 
     paper.on(
-        "blank:pointerdown",
+        "blank:pointerdblclick",
         function (event: joint.dia.Event, x: number, y: number) {
-            if (editorMode === EditorMode.Class) {
+            if (editorMode === EditorMode.Object) {
                 event.preventDefault();
-                const obj = new JointJSClass();
-                obj.position(x, y);
-                obj.addTo(graph);
-                selectedCellViews = [paper.findViewByModel(obj)];
+                // const obj = new JointJSNote();
+                // obj.position(x, y);
+                // obj.addTo(graph);
+                // selectedCellViews = [paper.findViewByModel(obj)];
+                return;
+            }
+
+            if (editorMode === EditorMode.Actor) {
+                event.preventDefault();
+                // const obj = new JointJSNote();
+                // obj.position(x, y);
+                // obj.addTo(graph);
+                // selectedCellViews = [paper.findViewByModel(obj)];
+                return;
+            }
+
+            if (editorMode === EditorMode.UseCase) {
+                event.preventDefault();
+                // const obj = new JointJSNote();
+                // obj.position(x, y);
+                // obj.addTo(graph);
+                // selectedCellViews = [paper.findViewByModel(obj)];
                 return;
             }
 
@@ -232,25 +275,14 @@
                 return;
             }
 
-            selectedCellViews = [];
+            event.preventDefault();
+            const obj = new JointJSClass();
+            obj.position(x, y);
+            obj.addTo(graph);
+            selectedCellViews = [paper.findViewByModel(obj)];
+            return;
         },
     );
-
-    // paper.on(
-    //     "cell:pointermove",
-    //     function (cellView: joint.dia.CellView, event: joint.dia.Event) {
-    //         if (
-    //             selectedCellViews.some(
-    //                 (selectedCellView) => selectedCellView === cellView,
-    //             )
-    //         ) {
-    //             // TODO: move all
-    //             return;
-    //         }
-    //
-    //         selectedCellViews = [cellView];
-    //     },
-    // );
 </script>
 
 <svelte:window
@@ -268,7 +300,7 @@
 <Selection bind:selectedCellViews bind:editorMode bind:mouseButton />
 <Panning bind:editorMode bind:mouseButton />
 
-<div class="relative flex flex-col w-full h-screen">
+<div class="relative flex flex-col w-full h-screen overflow-hidden">
     <Toolbar bind:editorMode />
 
     <div class="relative w-full h-full">
@@ -294,6 +326,39 @@
         </div>
     </div>
 {/if}
+
+<!-- // paper.on( -->
+<!-- //     "blank:pointerdown", -->
+<!-- //     function (event: joint.dia.Event, x: number, y: number) { -->
+<!-- //         if (editorMode === EditorMode.Class) { -->
+<!-- //             event.preventDefault(); -->
+<!-- //             const obj = new JointJSClass(); -->
+<!-- //             obj.position(x, y); -->
+<!-- //             obj.addTo(graph); -->
+<!-- //             selectedCellViews = [paper.findViewByModel(obj)]; -->
+<!-- //             return; -->
+<!-- //         } -->
+<!-- // -->
+<!-- // -->
+<!-- //         selectedCellViews = []; -->
+<!-- //     }, -->
+<!-- // ); -->
+<!---->
+<!---->
+<!-- // if (editorMode === EditorMode.Class) { -->
+<!-- // } -->
+<!---->
+<!-- // if (editorMode === EditorMode.Note) { -->
+<!-- //     event.preventDefault(); -->
+<!-- //     const obj = new JointJSNote(); -->
+<!-- //     obj.position(x, y); -->
+<!-- //     obj.addTo(graph); -->
+<!-- //     selectedCellViews = [paper.findViewByModel(obj)]; -->
+<!-- //     return; -->
+<!-- // } -->
+<!---->
+<!-- // selectedCellViews = []; -->
+<!---->
 
 <!-- <div -->
 <!--     class="absolute top-0 left-0 w-min h-full bg-white border-r border-gray-300" -->
