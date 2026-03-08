@@ -76,6 +76,7 @@ You can preview the production build with `npm run preview`.
     11. [ ] Possibility to add / select custom colors
     12. [ ] Class, also change divider stroke color
     13. [ ] Class, separate color for title and body
+    14. [ ] Fix association labels
 3. [ ] UX
     1. [x] When creating a class, open the menu of the class 
     2. [x] Shortcuts lik Ctrl+S to save JSON, and shortcuts for tools 
@@ -103,7 +104,8 @@ You can preview the production build with `npm run preview`.
     20. [x] Edit class name on double click
     21. [x] Ctrl +, Ctrl - for zoom
     22. [x] Fake class when dragging (not needed anymore, double click to create a class)
-    23. [ ] Instructions when opening first time (use `localStorage`), + show help button (show help button could be enough, after github button)
+    23. [ ] Instructions when opening first time (use `localStorage` to remember to hide), + show help button (show help button could be enough, after github button)
+    24. [ ] Fix double click on association (it both creates a vertex and opens the menu; it works well on labels, but not on edge)
 4. [ ] BUGS
     1. [x] When resizing graph disappears (fixed: I didn't have to call .render() after setting the new dimensions, it did that autmatically)
     2. [x] Cancel button not working 
