@@ -51,8 +51,8 @@ export const JointJSClass = joint.dia.Element.define(
                 refWidth: '100%',
                 refHeight: '100%',
                 strokeWidth: 2,
-                stroke: 'black',
-                fill: 'white',
+                stroke: 'hsl(0, 0%, 0%)',
+                fill: 'hsl(0, 0%, 100%)',
             },
             name: {
                 refX: '50%',
@@ -103,7 +103,10 @@ export const JointJSClass = joint.dia.Element.define(
 
             attrs["name"] = { text: name };
 
+            const bodyStroke = this.attr('body/stroke');
+
             attrs["divider1"] = {
+                stroke: bodyStroke,
                 visibility:
                     attributes.length > 0 || operations.length > 0 ? "visible" : "hidden",
             };
@@ -145,6 +148,7 @@ export const JointJSClass = joint.dia.Element.define(
             });
 
             attrs["divider2"] = {
+                stroke: bodyStroke,
                 y1: y,
                 y2: y,
                 visibility:

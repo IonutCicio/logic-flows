@@ -4,6 +4,7 @@
         type UMLAttribute,
         type UMLOperation,
     } from "$lib/types/uml";
+    import { hexToHSL, HSLToHex } from "$lib/utils";
     import { ArrowDown, ArrowUp, Plus, X } from "@lucide/svelte";
 
     const { component }: { component: IUMLClass } = $props();
@@ -11,6 +12,20 @@
     let name = $state(component.get("name") || "");
     let attributes = $state<UMLAttribute[]>(component.get("attributes") || []);
     let operations = $state<UMLOperation[]>(component.get("operations") || []);
+    let strokeHex = $derived(HSLToHex(component.attr("body/stroke") || '#000000'));
+    let fillHex   = $derived(HSLToHex(component.attr("body/fill")   || '#ffffff'));
+
+    const changeStyle = (e: Event & { currentTarget: EventTarget & HTMLInputElement; }, type: "stroke" | "fill") => {
+        const obj = hexToHSL(e.currentTarget.value)
+        const value = `hsl(${obj.h}, ${obj.s}%, ${obj.l}%)`
+        switch(type) {
+            case "stroke":
+                component.attr("body/stroke", value);
+                break;
+            case "fill":
+                component.attr("body/fill", value);
+        }
+    }
 
     function swapAttributes(indexA: number, indexB: number) {
         if (
@@ -58,6 +73,14 @@
     <div>
         <p class="text-sm font-medium! mb-1">Name</p>
         <input type="text" bind:value={name} class="w-full" />
+    </div>
+    <div>
+        <p class="text-sm font-medium! mb-1">Stroke color</p>
+        <input type="color" bind:value={strokeHex} onchange={(e) => changeStyle(e, "stroke")} colorspace="limited-srgb" class="w-full h-8 rounded-md cursor-pointer" />
+    </div>
+    <div>
+        <p class="text-sm font-medium! mb-1">Fill color</p>
+        <input type="color" bind:value={fillHex} onchange={(e) => changeStyle(e, "fill")} colorspace="limited-srgb" class="w-full h-8 rounded-md cursor-pointer" />
     </div>
 
     <div>
