@@ -1,31 +1,62 @@
 <script lang="ts">
-    import { graph } from "$lib/utils";
+    import { graph, pauseGraphToJSON } from "$lib/utils";
     import { Undo, Redo } from "@lucide/svelte";
+    import { onMount } from "svelte";
 
-    let history: string[] = new Array(20);
-    let history_length: number = $state(-1);
+    const HISTORY_SIZE: number = 20;
 
-    graph.on("add remove change", function (cell: any) {
-        if (history_length === history.length) {
-            // history.push(graph.toJSON());
+    let history: string[] = new Array(HISTORY_SIZE);
+    let history_length: number = $state(0);
+    let history_index: number = $state(-1);
+
+    onMount(() => {
+        history_index++;
+        history_length++;
+
+        const diagramJSON = localStorage.getItem("diagram");
+        if (diagramJSON) {
+            history[history_index] = JSON.parse(diagramJSON);
         } else {
-            // history[history_length] = graph.toJSON();
+            history[history_index] = graph.toJSON();
+        }
+    });
+
+    graph.on("add remove change", function () {
+        if ($pauseGraphToJSON) {
+            return;
         }
 
+        if (history_index < history_length - 1) {
+            history_index++;
+            history_length = history_index + 1;
+            history[history_index] = graph.toJSON();
+            return;
+        }
+
+        if (history_length >= HISTORY_SIZE) {
+            history.shift();
+            history.push(graph.toJSON());
+            return;
+        }
+
+        history_index++;
         history_length++;
+        history[history_index] = graph.toJSON();
     });
 
     function undo() {
-        if (history_length > 0) {
-            history_length--;
-            // graph.fromJSON(history[history_length - 1]);
+        if (history_index > 0) {
+            history_index--;
+            graph.fromJSON(history[history_index]);
+            localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
         }
     }
 
     function redo() {
-        if (history_length < history.length) {
-            history_length++;
-            // graph.fromJSON(history[history_length - 1]);
+        if (history_index < history_length - 1) {
+            history_index++;
+            graph.fromJSON(history[history_index]);
+            localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
         }
     }
 </script>
@@ -50,14 +81,14 @@
     }}
 />
 
-<button title="Undo" class="icon" onclick={undo} disabled={history_length < 0}>
+<button title="Undo" class="icon" onclick={undo} disabled={history_index <= 0}>
     <Undo size={16} />
 </button>
 <button
     title="Redo"
     class="icon"
     onclick={redo}
-    disabled={history_length === history.length}
+    disabled={history_index === history_length - 1}
 >
     <Redo size={16} />
 </button>

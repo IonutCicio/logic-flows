@@ -10,27 +10,29 @@
     let initialX: number = 0;
     let initialY: number = 0;
 
-    paper.on(
-        "blank:pointerdown",
-        function (_event: joint.dia.Event, x: number, y: number) {
-            initialX = x;
-            initialY = y;
-        },
-    );
+    paper.on("blank:pointerdown", function (event: joint.dia.Event) {
+        const eventPositionOnPaper = paper.clientToLocalPoint(
+            event.clientX || 0,
+            event.clientY || 0,
+        );
+        initialX = eventPositionOnPaper.x;
+        initialY = eventPositionOnPaper.y;
+    });
 
-    paper.on(
-        "blank:pointermove",
-        function (_event: joint.dia.Event, x: number, y: number) {
-            if (editorMode !== EditorMode.Panning && mouseButton !== 1) {
-                return;
-            }
+    paper.on("blank:pointermove", function (event: joint.dia.Event) {
+        if (editorMode !== EditorMode.Panning && mouseButton !== 1) {
+            return;
+        }
 
-            // TODO: use clientX and clientY to do it smoothly
-            const dx = x - initialX;
-            const dy = y - initialY;
+        const eventPositionOnPaper = paper.clientToLocalPoint(
+            event.clientX || 0,
+            event.clientY || 0,
+        );
 
-            const translate = paper.translate();
-            paper.translate(translate.tx + dx, translate.ty + dy);
-        },
-    );
+        const dx = eventPositionOnPaper.x - initialX;
+        const dy = eventPositionOnPaper.y - initialY;
+
+        const translate = paper.translate();
+        paper.translate(translate.tx + dx, translate.ty + dy);
+    });
 </script>

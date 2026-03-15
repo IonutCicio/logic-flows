@@ -5,6 +5,7 @@ import { JointJSAssociation } from "./components/JointJS/JointJSAssociation";
 import { conf } from ".";
 import { JointJSNote } from "./components/JointJS/JointJSNote";
 import { JointJSGeneralization } from "./components/JointJS/JointJSGeneralization";
+import { writable } from 'svelte/store';
 
 const cellNamespace = {
     ...joint.shapes,
@@ -22,20 +23,15 @@ export const graph: joint.dia.Graph = new joint.dia.Graph(
 );
 
 
-graph.on("add remove change", function(cell: any) {
-    if (
-        !(
-            cell instanceof JointJSClass ||
-            cell instanceof JointJSAssociation ||
-            cell instanceof JointJSGeneralization ||
-            cell instanceof JointJSNote
-        )
-    ) {
+export let pauseGraphToJSON = writable(false);
+graph.on("add remove change", function() {
+    if (get(pauseGraphToJSON)) {
         return;
     }
 
     localStorage.setItem("diagram", JSON.stringify(graph.toJSON()));
 });
+
 
 export const paper: joint.dia.Paper = new joint.dia.Paper({
     model: graph,
@@ -47,6 +43,9 @@ export const paper: joint.dia.Paper = new joint.dia.Paper({
     },
     defaultRouter: {
         name: "manhattan",
+        args: {
+            // maximumLoops: 500
+        }
         // args: {},
     },
     interactive: {
@@ -104,75 +103,75 @@ export function darkenHSL(hslString: string, amount = 20): string {
 }
 
 export function hexToHSL(hex: string): { h: number; s: number; l: number } {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 
-  if (!result) {
-    throw new Error("Could not parse Hex Color");
-  }
-
-  const r = parseInt(result[1], 16) / 255;
-  const g = parseInt(result[2], 16) / 255;
-  const b = parseInt(result[3], 16) / 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-
-  let h = 0;
-  let s = 0;
-  let l = (max + min) / 2;
-
-  if (max !== min) {
-    const d = max - min;
-
-    s = l > 0.5
-      ? d / (2 - max - min)
-      : d / (max + min);
-
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0);
-        break;
-      case g:
-        h = (b - r) / d + 2;
-        break;
-      case b:
-        h = (r - g) / d + 4;
-        break;
+    if (!result) {
+        throw new Error("Could not parse Hex Color");
     }
 
-    h /= 6;
-  }
+    const r = parseInt(result[1], 16) / 255;
+    const g = parseInt(result[2], 16) / 255;
+    const b = parseInt(result[3], 16) / 255;
 
-  return {
-    h: Math.round(h * 360),
-    s: Math.round(s * 100),
-    l: Math.round(l * 100)
-  };
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+
+    let h = 0;
+    let s = 0;
+    let l = (max + min) / 2;
+
+    if (max !== min) {
+        const d = max - min;
+
+        s = l > 0.5
+            ? d / (2 - max - min)
+            : d / (max + min);
+
+        switch (max) {
+            case r:
+                h = (g - b) / d + (g < b ? 6 : 0);
+                break;
+            case g:
+                h = (b - r) / d + 2;
+                break;
+            case b:
+                h = (r - g) / d + 4;
+                break;
+        }
+
+        h /= 6;
+    }
+
+    return {
+        h: Math.round(h * 360),
+        s: Math.round(s * 100),
+        l: Math.round(l * 100)
+    };
 }
 
 export function HSLToHex(hsl: string): string {
-  const result = /hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/i.exec(hsl);
+    const result = /hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/i.exec(hsl);
 
-  if (!result) {
-    throw new Error("Could not parse Hex Color");
-  }
-  
-  let h = parseFloat(result[1]);
-  const s = parseFloat(result[2]);
-  let l = parseFloat(result[3]);
+    if (!result) {
+        throw new Error("Could not parse Hex Color");
+    }
 
-  const hDecimal = l / 100;
-  const a = (s * Math.min(hDecimal, 1 - hDecimal)) / 100;
-  const f = (n: number) => {
-    const k = (n + h / 30) % 12;
-    const color = hDecimal - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    let h = parseFloat(result[1]);
+    const s = parseFloat(result[2]);
+    let l = parseFloat(result[3]);
 
-    // Convert to Hex and prefix with "0" if required
-    return Math.round(255 * color)
-      .toString(16)
-      .padStart(2, "0");
-  };
-  return `#${f(0)}${f(8)}${f(4)}`;
+    const hDecimal = l / 100;
+    const a = (s * Math.min(hDecimal, 1 - hDecimal)) / 100;
+    const f = (n: number) => {
+        const k = (n + h / 30) % 12;
+        const color = hDecimal - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+
+        // Convert to Hex and prefix with "0" if required
+        return Math.round(255 * color)
+            .toString(16)
+            .padStart(2, "0");
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
 }
 
 export function getBorderColor(color: string): string {

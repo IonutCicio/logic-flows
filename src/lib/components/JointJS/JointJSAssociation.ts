@@ -85,19 +85,21 @@ export const JointJSAssociation = joint.dia.Link.define(
 
         initialize: function(this: IUMLLink) {
             joint.dia.Link.prototype.initialize.apply(this, arguments as any);
-            // this.on('change:sourceMultiplicity change:name change:targetMultiplicity', this.update);
-            this.on('all', this.update);
+            this.on('change:sourceMultiplicity change:name change:targetMultiplicity', this.update);
+            // this.on('all', this.update);
             this.update();
         },
 
         update: function(this: IUMLLink) {
-            let sourcePosition = get(conf).gridSize * 1.5;
+            const sourceLabelLength = lengthToGridEven(textLength(this.get('sourceMultiplicity') || ''))
+            let sourceLabelPosition = sourceLabelLength / 2 + get(conf).gridSize / 2;
             if (
                 this.get("source")?.port?.includes("port-b-") ||
                 this.get("source")?.port?.includes("port-t-")
             ) {
-                sourcePosition = get(conf).gridSize;
+                sourceLabelPosition = get(conf).gridSize;
             }
+
 
             this.label(0, {
                 attrs: {
@@ -105,24 +107,16 @@ export const JointJSAssociation = joint.dia.Link.define(
                         text: this.get('sourceMultiplicity') || '',
                     },
                     rect: {
-                        width: lengthToGridEven(textLength(this.get('sourceMultiplicity') || ''))
+                        width: sourceLabelLength
                     }
                 },
-                position: sourcePosition,
-            });
-            this.label(1, {
-                attrs: {
-                    text: {
-                        text: this.get('name') || ''
-                    },
-                    rect: {
-                        x: -lengthToGridEven(textLength(this.get('name') || '')) / 2,
-                        width: lengthToGridEven(textLength(this.get('name') || ''))
-                    }
-                }
+                position: sourceLabelPosition,
             });
 
-            let targetPosition = get(conf).gridSize * 1.5;
+            // ----
+
+            const targetLabelLength = lengthToGridEven(textLength(this.get('targetMultiplicity') || ''))
+            let targetPosition = (targetLabelLength / 2 + get(conf).gridSize / 2)
             if (
                 this.get("target")?.port?.includes("port-b-") ||
                 this.get("target")?.port?.includes("port-t-")
@@ -136,11 +130,29 @@ export const JointJSAssociation = joint.dia.Link.define(
                         text: this.get('targetMultiplicity') || ''
                     },
                     rect: {
-                        width: lengthToGridEven(textLength(this.get('targetMultiplicity') || ''))
+                        x: - targetLabelLength / 2,
+                        width: targetLabelLength
                     }
                 },
                 position: -1 * targetPosition
             });
+
+            // ----
+
+            const nameLabelLength = lengthToGridEven(textLength(this.get('name') || ''))
+
+            this.label(1, {
+                attrs: {
+                    text: {
+                        text: this.get('name') || ''
+                    },
+                    rect: {
+                        x: - nameLabelLength / 2,
+                        width: nameLabelLength
+                    }
+                }
+            });
+
         }
     }
 );

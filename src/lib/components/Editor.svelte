@@ -8,6 +8,7 @@
         exportSVG,
         importJSON,
         clickOutside,
+        pauseGraphToJSON,
     } from "$lib/utils";
     import { JointJSClass } from "./JointJS/JointJSClass";
     import PropertyInspector from "$lib/components/view/PropertyInspector.svelte";
@@ -19,6 +20,8 @@
     import Panning from "./view/Panning.svelte";
     import ClassInspector from "./view/ClassInspector.svelte";
     import AssociationInspector from "./view/AssociationInspector.svelte";
+    import { JointJSInstanceOf } from "./JointJS/JointJSInstanceOf";
+    import { onMount } from "svelte";
 
     let editorMode: EditorMode = $state(EditorMode.Panning);
     let copiedViews: joint.dia.CellView[] = [];
@@ -29,7 +32,7 @@
     let selectedCellViews: joint.dia.CellView[] = $state([]);
     let inspectedCellView: joint.dia.CellView | null = $state(null);
 
-    $effect(() => {
+    onMount(() => {
         paper.setElement(paperElement);
         paper.setDimensions(
             paperElement.clientWidth,
@@ -111,10 +114,13 @@
         }
 
         if (event.key == "Backspace" || event.key == "Delete") {
+            $pauseGraphToJSON = true;
             for (const cellView of selectedCellViews) {
                 cellView.model.remove();
             }
             selectedCellViews = [];
+            $pauseGraphToJSON = false;
+            graph.trigger("change");
 
             return;
         }
@@ -177,7 +183,7 @@
         }
 
         if (editorMode === EditorMode.InstanceOf) {
-            // ...
+            return new JointJSInstanceOf();
         }
 
         return new JointJSAssociation();

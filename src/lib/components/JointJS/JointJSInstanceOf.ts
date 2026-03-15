@@ -9,8 +9,8 @@ const RECT = {
     strokeWidth: get(conf).gridSize / 2,
 };
 
-export const JointJSGeneralization = joint.dia.Link.define(
-    "custom.JointJSGeneralization",
+export const JointJSInstanceOf = joint.dia.Link.define(
+    "custom.JointJSInstanceOf",
     {
         ...joint.dia.Link.prototype.defaults,
         attrs: {
@@ -78,4 +78,4 @@ export const JointJSGeneralization = joint.dia.Link.define(
     },
 );
 
-// name: "Generalization",
+// name: "InstanceOf",

@@ -54,9 +54,10 @@ You can preview the production build with `npm run preview`.
         - [x] `fontSize`, `gridSize`,
         - [ ] `fontFamily`, `defaultStyle` etc...
             - [ ] Menu to edit config (settings)
-    6. [ ] Keep history of changes in order to go back and forth (JSON TO STACK)
+    6. [x] Keep history of changes in order to go back and forth (JSON TO STACK)
     7. [x] Remove grid and stuff when exporting JSON (and export just the graph components)
     8. [ ] Add support for exporting only selected items
+    9. [ ] Save history to `localStorage`
 2. [ ] UI
     1. [x] Snap class dimensions to grid
         - [x] The `width` and `height` are multiples of `conf.gridSize * 2`
@@ -73,8 +74,8 @@ You can preview the production build with `npm run preview`.
     8. [ ] Create icon for project, change name to something nicer (rebranding) 
     9. [x] Make `PropertyInspector` resizable (fix: made it float over the paper, and changes size based on content)
     10. [ ] Where possible (all items selected have the same style), show currently selected style 
-    11. [ ] Possibility to add / select custom colors
-    12. [ ] Class, also change divider stroke color
+    11. [x] Possibility to add / select custom colors
+    12. [x] Class, also change divider stroke color
     13. [ ] Class, separate color for title and body
     14. [ ] Fix association labels
 3. [ ] UX
@@ -95,26 +96,33 @@ You can preview the production build with `npm run preview`.
     13. [x] When pressing Esc, all stuff closes and deselects
         - [x] For now it deselects
         - [ ] It must close menus too
-    14. [ ] Store `zoom` and `translation` to `localStorage`, load on start
+    14. [x] Store `zoom` to `localStorage`, load on start
     15. [ ] Always on hints under tool selection on usage (small, gray, with `<code></code>` too for some keys like Ctrl), maybe add possiblity disable hints
     16. [x] Handle association and generalization moving from one port to another
     17. [x] If a port is connect to an association, there aren't other links to that port; it's either multiple generalizations or one association
-    18. [ ] Move selected items in tandem
-    19. [ ] If shift pressed while selecting, select multiple compoments (otherwise deselect only clicked)
+    18. [x] Move selected items in tandem
+    19. [x] If shift pressed while selecting, select multiple compoments (otherwise deselect only clicked)
     20. [x] Edit class name on double click
     21. [x] Ctrl +, Ctrl - for zoom
     22. [x] Fake class when dragging (not needed anymore, double click to create a class)
     23. [ ] Instructions when opening first time (use `localStorage` to remember to hide), + show help button (show help button could be enough, after github button)
     24. [ ] Fix double click on association (it both creates a vertex and opens the menu; it works well on labels, but not on edge)
+    25. [ ] Store paper `translation` to `localStorage`, load on start
 4. [ ] BUGS
     1. [x] When resizing graph disappears (fixed: I didn't have to call .render() after setting the new dimensions, it did that autmatically)
     2. [x] Cancel button not working 
     3. [x] Update `localStorage` on deletion of elments too (or debug it at least)
-    4. [ ] Association label resize width on content change
-    5. [ ] Fix slow input when editing attributes and operations (i.e. save just after typing, not before)
+    4. [x] Association label resize width on content change
+    5. [x] Fix slow input when editing attributes and operations (i.e. save just after typing, not before)
+    6. [ ] The smaller the zoom gets, the worse the panning becomes (it's all jittery) 
+    7. [x] When moving multiple selected elements, it gets slow
 
 
-
-
-
-
+TODO:
+- reduce minimum zoom to 40
+- dashed line
+- use-case
+- actor
+- object
+- link
+- instanceOf

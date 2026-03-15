@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { EditorMode, graph, paper } from "$lib/utils";
+    import { EditorMode, graph, paper, pauseGraphToJSON } from "$lib/utils";
     import * as joint from "@joint/core";
     import { ClassResizeTool } from "../JointJS/ClassResizeTool";
+    import { conf } from "$lib";
 
     let {
         selectedCellViews = $bindable([]),
@@ -15,6 +16,7 @@
 
     const selectionRectangle: joint.shapes.standard.Rectangle =
         new joint.shapes.standard.Rectangle();
+
     selectionRectangle.attr({
         body: {
             fill: "rgba(0, 162, 255, 0.1)",
@@ -24,7 +26,20 @@
 
     let previousSelectedCellViews: joint.dia.CellView[] = [];
 
+    const BOUDNARY = {
+        focusOpacity: 1,
+        padding: $conf.gridSize,
+        useModelGeometry: true,
+        attributes: {
+            stroke: "black",
+            "stroke-width": 0.5,
+            "stroke-dasharray": "3", // 5.5
+            fill: "none",
+        },
+    };
+
     $effect(() => {
+        $pauseGraphToJSON = true;
         if (
             previousSelectedCellViews.length == 1 &&
             selectedCellViews.length == 1 &&
@@ -45,8 +60,8 @@
                     new joint.dia.ToolsView({
                         tools: [
                             cellView.model instanceof joint.dia.Element
-                                ? new joint.elementTools.Boundary()
-                                : new joint.linkTools.Boundary(),
+                                ? new joint.elementTools.Boundary(BOUDNARY)
+                                : new joint.linkTools.Boundary(BOUDNARY),
                         ],
                     }),
                 );
@@ -65,8 +80,8 @@
                                 scale: 1,
                             }),
                             new joint.linkTools.Remove(),
-                            new joint.linkTools.Boundary(),
-                            new joint.linkTools.Segments(),
+                            new joint.linkTools.Boundary(BOUDNARY),
+                            // new joint.linkTools.Segments(),
                             new joint.linkTools.SourceArrowhead(),
                             new joint.linkTools.TargetArrowhead(),
                         ],
@@ -78,13 +93,20 @@
                 cellView.addTools(
                     new joint.dia.ToolsView({
                         tools: [
-                            new joint.elementTools.Boundary(),
+                            new joint.elementTools.Boundary(BOUDNARY),
                             new joint.elementTools.Remove(),
                             new ClassResizeTool({ selector: "body" }),
                         ],
                     }),
                 );
             }
+        }
+        $pauseGraphToJSON = false;
+    });
+
+    paper.on("blank:pointerclick", function (event: joint.dia.Event) {
+        if (event.button === 0) {
+            selectedCellViews = [];
         }
     });
 
@@ -94,9 +116,13 @@
             mouseButton = event.button || 0;
 
             if (editorMode !== EditorMode.Selection || mouseButton !== 0) {
+                if (mouseButton === 0) {
+                    selectedCellViews = [];
+                }
                 return;
             }
 
+            $pauseGraphToJSON = true;
             selectionRectangle.addTo(graph);
             selectionRectangle.position(x, y);
             selectionRectangle.attr({
@@ -108,10 +134,6 @@
             selectionRectangle.toFront();
         },
     );
-
-    // paper.on("blank:pointerdown", function () {
-    //     selectedCellViews = [];
-    // });
 
     paper.on(
         "blank:pointermove",
@@ -129,7 +151,10 @@
     );
 
     paper.on("blank:pointerup", function () {
-        if (selectionRectangle.graph === null) {
+        if (
+            editorMode !== EditorMode.Selection ||
+            !graph.getCell(selectionRectangle.id)
+        ) {
             return;
         }
 
@@ -138,13 +163,28 @@
                 strict: false,
             })
             .filter((cellView) => cellView.model != selectionRectangle);
+
         selectionRectangle.remove();
     });
 
     let selectionStartPosition = { x: 0, y: 0 };
+    let manualSelectionMode = false;
 
     paper.on("cell:pointerdown", function (cellView: joint.dia.CellView) {
+        $pauseGraphToJSON = true;
         selectionStartPosition = cellView.model.position();
+
+        if (manualSelectionMode) {
+            if (selectedCellViews.includes(cellView)) {
+                selectedCellViews = selectedCellViews.filter(
+                    (selectedCellView) => selectedCellView !== cellView,
+                );
+            } else {
+                selectedCellViews = [cellView, ...selectedCellViews];
+            }
+            return;
+        }
+
         if (selectedCellViews.includes(cellView)) {
             return;
         }
@@ -152,6 +192,7 @@
     });
 
     paper.on("cell:pointermove", function (cellView: joint.dia.CellView) {
+        $pauseGraphToJSON = true;
         const cellPosition = cellView.model.position();
         const dx = cellPosition.x - selectionStartPosition.x;
         const dy = cellPosition.y - selectionStartPosition.y;
@@ -159,7 +200,7 @@
 
         for (const selectedCellView of selectedCellViews) {
             if (
-                selectedCellView == cellView ||
+                selectedCellView === cellView ||
                 !(selectedCellView.model instanceof joint.dia.Element)
             ) {
                 continue;
@@ -172,4 +213,18 @@
             );
         }
     });
+
+    paper.on("cell:pointerup", function () {
+        $pauseGraphToJSON = false;
+        graph.trigger("change");
+    });
 </script>
+
+<svelte:window
+    onkeydown={function (event: KeyboardEvent) {
+        manualSelectionMode = event.shiftKey || event.ctrlKey;
+    }}
+    onkeyup={function (_event: KeyboardEvent) {
+        manualSelectionMode = false;
+    }}
+/>
