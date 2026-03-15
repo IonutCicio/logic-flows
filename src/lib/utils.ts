@@ -11,7 +11,7 @@ import { JointJSNote } from "./components/JointJS/JointJSNote";
 import { writable } from 'svelte/store';
 import { JointJSObject } from "./components/JointJS/JointJSObject";
 import { JointJSUseCase } from "./components/JointJS/JointJSUseCase";
-import { JointJSDashedLine } from "./components/JointJS/JointJsDashedLine";
+import { JointJSDashedLine } from "./components/JointJS/JointJSDashedLine";
 
 const cellNamespace = {
     ...joint.shapes,

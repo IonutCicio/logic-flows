@@ -22,7 +22,7 @@
     import AssociationInspector from "./view/AssociationInspector.svelte";
     import { JointJSInstanceOf } from "./JointJS/JointJSInstanceOf";
     import { onMount } from "svelte";
-    import { JointJSDashedLine } from "./JointJS/JointJsDashedLine";
+    import { JointJSDashedLine } from "./JointJS/JointJSDashedLine";
     import { JointJSActor } from "./JointJS/JointJSActor";
     import { JointJSUseCase } from "./JointJS/JointJSUseCase";
     import { JointJSObject } from "./JointJS/JointJSObject";
