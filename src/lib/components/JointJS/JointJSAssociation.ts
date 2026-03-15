@@ -1,22 +1,22 @@
 import type { IUMLLink } from "$lib/types/uml";
 import { conf } from "$lib";
-import { get } from 'svelte/store';
+import { get } from "svelte/store";
 import * as joint from "@joint/core";
 import { lengthToGridEven, textLength } from "$lib/utils";
 
 export const JointJSAssociation = joint.dia.Link.define(
-    'custom.JointJSAssociation',
+    "custom.JointJSAssociation",
     {
         ...joint.dia.Link.prototype.defaults,
-        sourceMultiplicity: '0..*',
-        name: 'association',
-        targetMultiplicity: '0..*',
+        sourceMultiplicity: "0..*",
+        name: "association",
+        targetMultiplicity: "0..*",
         attrs: {
             line: {
                 connection: true,
-                stroke: 'black',
+                stroke: "black",
                 strokeWidth: 2,
-                fill: 'none'
+                fill: "none"
             },
             wrapper: {
                 connection: true,
@@ -27,10 +27,10 @@ export const JointJSAssociation = joint.dia.Link.define(
             // 0: Source Multiplicity
             {
                 attrs: {
-                    text: { 'font-size': get(conf).fontSize },
+                    text: { "font-size": get(conf).fontSize },
                     rect: {
-                        fill: 'white',
-                        stroke: 'white',
+                        fill: "white",
+                        stroke: "white",
                         strokeWidth: get(conf).gridSize / 3
                     },
                 }
@@ -40,22 +40,22 @@ export const JointJSAssociation = joint.dia.Link.define(
                 position: 0.5,
                 attrs: {
                     text: {
-                        'font-size': get(conf).fontSize,
-                        'font-style': 'italic'
+                        "font-size": get(conf).fontSize,
+                        "font-style": "italic"
                     },
                     rect: {
-                        fill: 'white',
-                        stroke: 'white',
+                        fill: "white",
+                        stroke: "white",
                     }
                 }
             },
             // 2: Target Multiplicity
             {
                 attrs: {
-                    text: { 'font-size': get(conf).fontSize },
+                    text: { "font-size": get(conf).fontSize },
                     rect: {
-                        fill: 'white',
-                        stroke: 'white',
+                        fill: "white",
+                        stroke: "white",
                         strokeWidth: get(conf).gridSize / 3
                     },
                 }
@@ -65,33 +65,34 @@ export const JointJSAssociation = joint.dia.Link.define(
     {
         markup: [
             {
-                tagName: 'path',
-                selector: 'wrapper',
+                tagName: "path",
+                selector: "wrapper",
                 attributes: {
-                    'fill': 'none',
-                    'cursor': 'pointer',
-                    'stroke': 'transparent'
+                    "fill": "none",
+                    "cursor": "pointer",
+                    "stroke": "transparent"
                 }
             },
             {
-                tagName: 'path',
-                selector: 'line',
+                tagName: "path",
+                selector: "line",
                 attributes: {
-                    'fill': 'none',
-                    'pointer-events': 'none'
+                    "fill": "none",
+                    "pointer-events": "none"
                 }
             },
         ],
 
         initialize: function(this: IUMLLink) {
             joint.dia.Link.prototype.initialize.apply(this, arguments as any);
-            this.on('change:sourceMultiplicity change:name change:targetMultiplicity', this.update);
-            // this.on('all', this.update);
+            this.on("change:sourceMultiplicity change:name change:targetMultiplicity", this.update);
             this.update();
         },
 
         update: function(this: IUMLLink) {
-            const sourceLabelLength = lengthToGridEven(textLength(this.get('sourceMultiplicity') || ''))
+            const sourceMultiplicity = this.get("sourceMultiplicity") || "";
+            const sourceLabelLength = lengthToGridEven(textLength(sourceMultiplicity))
+
             let sourceLabelPosition = sourceLabelLength / 2 + get(conf).gridSize / 2;
             if (
                 this.get("source")?.port?.includes("port-b-") ||
@@ -100,59 +101,52 @@ export const JointJSAssociation = joint.dia.Link.define(
                 sourceLabelPosition = get(conf).gridSize;
             }
 
-
             this.label(0, {
                 attrs: {
-                    text: {
-                        text: this.get('sourceMultiplicity') || '',
-                    },
-                    rect: {
-                        width: sourceLabelLength
-                    }
+                    text: { text: sourceMultiplicity },
+                    rect: { width: sourceLabelLength }
                 },
                 position: sourceLabelPosition,
             });
 
             // ----
 
-            const targetLabelLength = lengthToGridEven(textLength(this.get('targetMultiplicity') || ''))
-            let targetPosition = (targetLabelLength / 2 + get(conf).gridSize / 2)
+            const targetMultiplicity = this.get("targetMultiplicity") || "";
+            const targetLabelLength = lengthToGridEven(textLength(targetMultiplicity))
+
+            let targetLabelPosition = (targetLabelLength / 2 + get(conf).gridSize / 2)
             if (
                 this.get("target")?.port?.includes("port-b-") ||
                 this.get("target")?.port?.includes("port-t-")
             ) {
-                targetPosition = get(conf).gridSize;
+                targetLabelPosition = get(conf).gridSize;
             }
 
             this.label(2, {
                 attrs: {
-                    text: {
-                        text: this.get('targetMultiplicity') || ''
-                    },
+                    text: { text: targetMultiplicity },
                     rect: {
                         x: - targetLabelLength / 2,
                         width: targetLabelLength
                     }
                 },
-                position: -1 * targetPosition
+                position: -1 * targetLabelPosition
             });
 
             // ----
 
-            const nameLabelLength = lengthToGridEven(textLength(this.get('name') || ''))
+            const name = this.get("name") || "";
+            const nameLabelLength = lengthToGridEven(textLength(name))
 
             this.label(1, {
                 attrs: {
-                    text: {
-                        text: this.get('name') || ''
-                    },
+                    text: { text: name },
                     rect: {
                         x: - nameLabelLength / 2,
                         width: nameLabelLength
                     }
                 }
             });
-
         }
     }
 );

@@ -1,5 +1,5 @@
 import { type IUMLClass, type UMLAttribute, type UMLOperation } from '$lib/types/uml';
-import { graph, lengthToGridEven, textLength } from '$lib/utils';
+import { getPerimeterPorts, graph, lengthToGridEven, textLength } from '$lib/utils';
 import { conf } from '$lib';
 import { get } from 'svelte/store';
 import * as joint from '@joint/core';
@@ -18,26 +18,6 @@ function operationToString(operation: UMLOperation): string {
     }
 
     return result.trim();
-}
-
-function getPerimeterPorts(width: number, height: number, id: joint.dia.Cell.ID) {
-    let ports = []
-
-    let portSerialId = 0
-    for (let x = 0; x <= width; x += get(conf).gridSize) {
-        portSerialId++;
-        ports.push({ id: `${id}-port-t-${portSerialId} `, args: { x, y: 0 }, type: 't' })
-        ports.push({ id: `${id}-port-b-${portSerialId} `, args: { x, y: height }, type: 'b' })
-    }
-
-    portSerialId = 0;
-    for (let y = get(conf).gridSize; y < height; y += get(conf).gridSize) {
-        portSerialId++;
-        ports.push({ id: `${id}-port-l-${portSerialId} `, args: { x: 0, y }, type: 'l' })
-        ports.push({ id: `${id}-port-r-${portSerialId} `, args: { x: width, y }, type: 'r' })
-    }
-
-    return ports;
 }
 
 export const JointJSClass = joint.dia.Element.define(
@@ -202,27 +182,7 @@ export const JointJSClass = joint.dia.Element.define(
 
             this.resize(width, height);
             this.attr(attrs);
-            this.set('ports', {
-                items: getPerimeterPorts(width, height, this.id).map(port => {
-                    return {
-                        attrs: {
-                            body: {
-                                magnet: true,
-                                r: get(conf).gridSize / 2,
-                                fill: 'transparent',
-                                strokeWidth: 2,
-                            }
-                        },
-                        markup: [
-                            {
-                                tagName: 'circle',
-                                selector: 'body'
-                            },
-                        ],
-                        ...port
-                    }
-                })
-            })
+            this.set('ports', { items: getPerimeterPorts(width, height, this.id) })
             this.set('markup', markup)
         }
     }

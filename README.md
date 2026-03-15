@@ -126,3 +126,4 @@ TODO:
 - object
 - link
 - instanceOf
+- 2 toolbar lines: one for objects-like things, one for link-like things... nah

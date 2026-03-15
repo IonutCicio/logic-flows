@@ -1,19 +1,31 @@
 import * as joint from "@joint/core";
 import { get } from 'svelte/store';
-import { JointJSClass } from "./components/JointJS/JointJSClass";
-import { JointJSAssociation } from "./components/JointJS/JointJSAssociation";
 import { conf } from ".";
-import { JointJSNote } from "./components/JointJS/JointJSNote";
+import { JointJSActor } from "./components/JointJS/JointJSActor";
+import { JointJSAssociation } from "./components/JointJS/JointJSAssociation";
+import { JointJSClass } from "./components/JointJS/JointJSClass";
 import { JointJSGeneralization } from "./components/JointJS/JointJSGeneralization";
+import { JointJSInstanceOf } from "./components/JointJS/JointJSInstanceOf";
+import { JointJSLink } from "./components/JointJS/JointJSLink";
+import { JointJSNote } from "./components/JointJS/JointJSNote";
 import { writable } from 'svelte/store';
+import { JointJSObject } from "./components/JointJS/JointJSObject";
+import { JointJSUseCase } from "./components/JointJS/JointJSUseCase";
+import { JointJSDashedLine } from "./components/JointJS/JointJsDashedLine";
 
 const cellNamespace = {
     ...joint.shapes,
     custom: {
-        JointJSClass,
+        JointJSActor,
         JointJSAssociation,
+        JointJSClass,
         JointJSGeneralization,
+        JointJSInstanceOf,
+        JointJSLink,
         JointJSNote,
+        JointJSObject,
+        JointJSUseCase,
+        JointJSDashedLine,
     },
 };
 
@@ -22,8 +34,8 @@ export const graph: joint.dia.Graph = new joint.dia.Graph(
     { cellNamespace },
 );
 
-
 export let pauseGraphToJSON = writable(false);
+
 graph.on("add remove change", function() {
     if (get(pauseGraphToJSON)) {
         return;
@@ -79,6 +91,44 @@ export enum EditorMode {
 
     // Extra
     Note
+}
+
+export function getPerimeterPorts(width: number, height: number, id: joint.dia.Cell.ID) {
+    let ports = []
+
+    let portSerialId = 0
+    for (let x = 0; x <= width; x += get(conf).gridSize) {
+        portSerialId++;
+        ports.push({ id: `${id}-port-t-${portSerialId} `, args: { x, y: 0 }, type: 't' })
+        ports.push({ id: `${id}-port-b-${portSerialId} `, args: { x, y: height }, type: 'b' })
+    }
+
+    portSerialId = 0;
+    for (let y = get(conf).gridSize; y < height; y += get(conf).gridSize) {
+        portSerialId++;
+        ports.push({ id: `${id}-port-l-${portSerialId} `, args: { x: 0, y }, type: 'l' })
+        ports.push({ id: `${id}-port-r-${portSerialId} `, args: { x: width, y }, type: 'r' })
+    }
+
+    return ports.map((port) => {
+        return {
+            attrs: {
+                body: {
+                    magnet: true,
+                    r: get(conf).gridSize / 2,
+                    fill: 'transparent',
+                    strokeWidth: 2,
+                }
+            },
+            markup: [
+                {
+                    tagName: 'circle',
+                    selector: 'body'
+                },
+            ],
+            ...port
+        }
+    });
 }
 
 export function darkenHSL(hslString: string, amount = 20): string {

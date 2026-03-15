@@ -22,6 +22,10 @@
     import AssociationInspector from "./view/AssociationInspector.svelte";
     import { JointJSInstanceOf } from "./JointJS/JointJSInstanceOf";
     import { onMount } from "svelte";
+    import { JointJSDashedLine } from "./JointJS/JointJsDashedLine";
+    import { JointJSActor } from "./JointJS/JointJSActor";
+    import { JointJSUseCase } from "./JointJS/JointJSUseCase";
+    import { JointJSObject } from "./JointJS/JointJSObject";
 
     let editorMode: EditorMode = $state(EditorMode.Panning);
     let copiedViews: joint.dia.CellView[] = [];
@@ -171,7 +175,7 @@
         _magnet: SVGElement,
     ) {
         if (editorMode === EditorMode.DashedLine) {
-            // ...
+            return new JointJSDashedLine();
         }
 
         if (editorMode === EditorMode.Generalization) {
@@ -197,14 +201,14 @@
         _end,
         linkView,
     ) {
-        if (
-            !(
-                linkView.model instanceof JointJSGeneralization ||
-                linkView.model instanceof JointJSAssociation
-            )
-        ) {
-            return false;
-        }
+        // if (
+        //     !(
+        //         linkView.model instanceof JointJSGeneralization ||
+        //         linkView.model instanceof JointJSAssociation
+        //     )
+        // ) {
+        //     return false;
+        // }
 
         if (!magnetT || !magnetS) {
             return false;
@@ -232,9 +236,21 @@
         }
 
         return (
-            cellViewS.model instanceof JointJSClass &&
-            cellViewT.model instanceof JointJSClass &&
-            magnetT?.getAttribute("port") != null
+            magnetT?.getAttribute("port") != null &&
+            // `false` is here for formatting reasons
+            (false ||
+                (linkView.model instanceof JointJSAssociation &&
+                    cellViewS.model instanceof JointJSClass &&
+                    cellViewT.model instanceof JointJSClass) ||
+                (linkView.model instanceof JointJSGeneralization &&
+                    cellViewS.model instanceof JointJSClass &&
+                    cellViewT.model instanceof JointJSClass) ||
+                // TODO: better validation (NOTE - - - - CLASS)
+                // TODO: better validation (ASSOCIATION - - - - ASSOCIATION-CLASS)
+                (linkView.model instanceof JointJSDashedLine &&
+                    cellViewS.model instanceof JointJSClass &&
+                    cellViewT.model instanceof JointJSClass) ||
+                false)
         );
     };
 
@@ -245,44 +261,21 @@
     paper.on(
         "blank:pointerdblclick",
         function (event: joint.dia.Event, x: number, y: number) {
-            if (editorMode === EditorMode.Object) {
-                event.preventDefault();
-                // const obj = new JointJSNote();
-                // obj.position(x, y);
-                // obj.addTo(graph);
-                // selectedCellViews = [paper.findViewByModel(obj)];
-                return;
-            }
-
-            if (editorMode === EditorMode.Actor) {
-                event.preventDefault();
-                // const obj = new JointJSNote();
-                // obj.position(x, y);
-                // obj.addTo(graph);
-                // selectedCellViews = [paper.findViewByModel(obj)];
-                return;
-            }
-
-            if (editorMode === EditorMode.UseCase) {
-                event.preventDefault();
-                // const obj = new JointJSNote();
-                // obj.position(x, y);
-                // obj.addTo(graph);
-                // selectedCellViews = [paper.findViewByModel(obj)];
-                return;
-            }
-
-            if (editorMode === EditorMode.Note) {
-                event.preventDefault();
-                const obj = new JointJSNote();
-                obj.position(x, y);
-                obj.addTo(graph);
-                selectedCellViews = [paper.findViewByModel(obj)];
-                return;
-            }
-
             event.preventDefault();
-            const obj = new JointJSClass();
+            let obj;
+
+            if (editorMode === EditorMode.Object) {
+                obj = new JointJSObject();
+            } else if (editorMode === EditorMode.Actor) {
+                obj = new JointJSActor();
+            } else if (editorMode === EditorMode.UseCase) {
+                obj = new JointJSUseCase();
+            } else if (editorMode === EditorMode.Note) {
+                obj = new JointJSNote();
+            } else {
+                obj = new JointJSClass();
+            }
+
             obj.position(x, y);
             obj.addTo(graph);
             selectedCellViews = [paper.findViewByModel(obj)];
