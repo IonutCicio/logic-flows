@@ -108,6 +108,12 @@ You can preview the production build with `npm run preview`.
     23. [ ] Instructions when opening first time (use `localStorage` to remember to hide), + show help button (show help button could be enough, after github button)
     24. [ ] Fix double click on association (it both creates a vertex and opens the menu; it works well on labels, but not on edge)
     25. [ ] Store paper `translation` to `localStorage`, load on start
+    26. [ ] Add shortcut "+" to add attributes in class!
+    27. [ ] focus on newly created attribute when adding an attribute (/ operation)
+    28. [ ] move to center of diagram instead of translate 0 0
+    29. [ ] highlight currently edited attribute in diagram (maybe one could zoom in the diagram position of the thing)
+    30. [ ] when exporting svg, remove the ports!
+    31. [ ] please do the png export
 4. [ ] BUGS
     1. [x] When resizing graph disappears (fixed: I didn't have to call .render() after setting the new dimensions, it did that autmatically)
     2. [x] Cancel button not working 
