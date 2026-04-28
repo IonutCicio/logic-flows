@@ -1,5 +1,6 @@
 <script lang="ts">
     import {
+        Multiplicity,
         type IUMLClass,
         type UMLAttribute,
         type UMLOperation,
@@ -36,11 +37,25 @@
             indexA === indexB
         ) {
             return;
-        }
-
-        [attributes[indexA], attributes[indexB]] = [attributes[indexB], attributes[indexA]];
+        }[attributes[indexA], attributes[indexB]] = [attributes[indexB], attributes[indexA]];
 
         attributes = [...attributes];
+    }
+
+    function swapOperations(indexA: number, indexB: number) {
+        if (
+            indexA < 0 ||
+            indexB < 0 ||
+            indexA >= operations.length ||
+            indexB >= operations.length ||
+            indexA === indexB
+        ) {
+            return;
+        }
+
+        [operations[indexA], operations[indexB]] = [operations[indexB], operations[indexA]];
+
+        operations = [...operations];
     }
 
     // $effect(() => {
@@ -66,6 +81,7 @@
 
     $effect(() => {
         component.set("operations", operations);
+        component.update();
     });
 </script>
 
@@ -130,7 +146,6 @@
                         type="text"
                         bind:value={attribute.type}
                     />
-
                     [
                     <input
                         class="w-10"
@@ -183,6 +198,86 @@
                             onclick={() => {
                                 attributes.splice(index, 1);
                                 component.set("attributes", attributes);
+                            }}
+                        >
+                            <X size={16} />
+                        </button>
+                    </div>
+                </div>
+            {/each}
+        </div>
+    </div>
+
+    <div>
+        <div class="flex justify-between items-center mb-2">
+            <p class="text-sm font-medium!">Operations</p>
+            <button
+                class="icon"
+                onclick={() => {
+                    let default_operations_index = 0;
+                    for (const operation of operations) {
+                        if (operation.name.startsWith("operation")) {
+                            try {
+                                const id = Number(
+                                    operation.name.slice("operation".length),
+                                );
+                                if (id >= default_operations_index) {
+                                    default_operations_index = id + 1;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+
+                    operations.push({
+                        name: `operation${default_operations_index > 0 ? default_operations_index : ""}`,
+                        type: "void",
+                        multiplicity: new Multiplicity(),
+                    });
+                }}
+            >
+                <Plus size={16} />
+            </button>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            {#each operations as operation, index}
+                <div class="flex items-center gap-2">
+                    <input
+                        class="w-30"
+                        type="text"
+                        bind:value={operation.name}
+                    />
+                    :
+                    <input
+                        class="w-20"
+                        type="text"
+                        bind:value={operation.type}
+                    />
+
+                    <div class="flex gap-2 ml-auto">
+                        <button
+                            disabled={index === 0}
+                            onclick={() => {
+                                swapOperations(index, index-1);
+                            }}
+                        >
+                            <ArrowUp size={16} />
+                        </button>
+
+                        <button
+                            disabled={index === operations.length - 1}
+                            onclick={() => {
+                                swapOperations(index, index+1)
+                            }}
+                        >
+                            <ArrowDown size={16} />
+                        </button>
+
+                        <button
+                            class="text-red-600"
+                            onclick={() => {
+                                operations.splice(index, 1);
+                                component.set("operations", operations);
                             }}
                         >
                             <X size={16} />
